@@ -3,18 +3,19 @@
 #include <easystr.h>
 typedef struct {
   enum {
-  TOKEN_ID,
-  TOKEN_LT,
-  TOKEN_GT,
-  TOKEN_STR,
-  TOKEN_EQUALS,
-  TOKEN_NUMBER,
-  TOKEN_DIV,
-  TOKEN_EOF
+    TOKEN_ID,
+    TOKEN_LT,
+    TOKEN_GT,
+    TOKEN_STR,
+    TOKEN_EQUALS,
+    TOKEN_NUMBER,
+    TOKEN_DIV,
+    TOKEN_EOF
   } type;
-  EStr* value;
+  EStr *value;
 } HTMLToken;
 
+HTMLToken *init_html_token(int type, char *value);
 
-HTMLToken* init_html_token(int type, char* value);
+void html_token_free(HTMLToken *token);
 #endif

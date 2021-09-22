@@ -1,15 +1,21 @@
+#include <html.h>
 #include <stdio.h>
-#include <lexer.h>
-#include <parser.h>
+#include <stdlib.h>
 
+int main(int argc, char *argv[]) {
+  HTMLNode *root = html("<button value=\"false\"/>");
 
-int main(int argc, char* argv[]) {
-  HTMLLexer* lexer = init_html_lexer("<div class=\"navbar\"></div>");
-  HTMLParser* parser = init_html_parser(lexer);
+  int len = 0;
+  char **propnames = html_get_propnames(root, &len);
 
-  HTMLAST* root = html_parser_parse(parser);
+  for (int i = 0; i < len; i++) {
+    printf("%s ====> %s\n", propnames[i],
+           html_get_propvalue_str(root, propnames[i]));
+    free(propnames[i]);
+  }
 
-  printf("%s\n", root->value_str->value);
+  free(propnames);
+  html_free(root);
 
   return 0;
 }
