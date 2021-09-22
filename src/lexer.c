@@ -1,5 +1,5 @@
 #include <ctype.h>
-#include <lexer.h>
+#include <html_lexer.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,13 +51,13 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
 
     switch (lexer->c) {
     case '<':
-      LEXER_TOK(lexer, TOKEN_LT);
+      LEXER_TOK(lexer, HTML_TOKEN_LT);
     case '>':
-      LEXER_TOK(lexer, TOKEN_GT);
+      LEXER_TOK(lexer, HTML_TOKEN_GT);
     case '=':
-      LEXER_TOK(lexer, TOKEN_EQUALS);
+      LEXER_TOK(lexer, HTML_TOKEN_EQUALS);
     case '/':
-      LEXER_TOK(lexer, TOKEN_DIV);
+      LEXER_TOK(lexer, HTML_TOKEN_DIV);
     case '\'':
     case '"':
       return html_lexer_parse_string(lexer);
@@ -68,7 +68,7 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
     }
   }
 
-  LEXER_TOK(lexer, TOKEN_EOF);
+  LEXER_TOK(lexer, HTML_TOKEN_EOF);
 }
 
 HTMLToken *html_lexer_parse_id(HTMLLexer *lexer) {
@@ -80,7 +80,7 @@ HTMLToken *html_lexer_parse_id(HTMLLexer *lexer) {
     html_lexer_advance(lexer);
   }
 
-  HTMLToken *tok = init_html_token(TOKEN_ID, s->value);
+  HTMLToken *tok = init_html_token(HTML_TOKEN_ID, s->value);
 
   e_free(s);
 
@@ -98,7 +98,7 @@ HTMLToken *html_lexer_parse_string(HTMLLexer *lexer) {
     html_lexer_advance(lexer);
   }
 
-  HTMLToken *tok = init_html_token(TOKEN_STR, s->value);
+  HTMLToken *tok = init_html_token(HTML_TOKEN_STR, s->value);
 
   e_free(s);
 
@@ -121,7 +121,7 @@ HTMLToken *html_lexer_parse_number(HTMLLexer *lexer) {
     }
   }
 
-  HTMLToken *tok = init_html_token(TOKEN_NUMBER, s->value);
+  HTMLToken *tok = init_html_token(HTML_TOKEN_NUMBER, s->value);
 
   e_free(s);
 

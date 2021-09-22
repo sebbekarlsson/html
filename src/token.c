@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <token.h>
+#include <html_token.h>
 
 HTMLToken *init_html_token(int type, char *value) {
   HTMLToken *tok = (HTMLToken *)calloc(1, sizeof(HTMLToken));

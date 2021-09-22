@@ -1,8 +1,8 @@
-#ifndef HTML_LEXER_H
-#define HTML_LEXER_H
+#ifndef XHTML_LEXER_H
+#define XHTML_LEXER_H
 #include <easystr.h>
 #include <stdint.h>
-#include <token.h>
+#include <html_token.h>
 typedef struct {
   EStr src;
   uint32_t i;

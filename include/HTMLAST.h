@@ -1,5 +1,5 @@
-#ifndef HTML_AST_H
-#define HTML_AST_H
+#ifndef XHTML_AST_H
+#define XHTML_AST_H
 #include <easystr.h>
 #include <stdint.h>
 

@@ -12,9 +12,9 @@ add_compile_options(-g -Wall)
 add_executable(html_e ${html_sources})
 
 
-list(FILTER html_ources EXCLUDE REGEX "main.c")
+list(FILTER html_sources EXCLUDE REGEX "main.c")
 
-add_library(html ${html_sources})
+add_library(html SHARED ${html_sources})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 

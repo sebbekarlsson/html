@@ -1,4 +1,4 @@
-#include <parser.h>
+#include <html_parser.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -40,7 +40,7 @@ HTMLAST *html_parser_parse_compound(HTMLParser *parser) {
   HTMLAST *ast = init_html_ast(HTML_AST_COMPOUND);
   ast->children = init_html_ast_list();
 
-  while (parser->token->type != TOKEN_EOF) {
+  while (parser->token->type != HTML_TOKEN_EOF) {
     HTMLAST *child = html_parser_parse_expr(parser);
     html_ast_list_append(ast->children, child);
   }
@@ -52,36 +52,36 @@ HTMLAST *html_parser_parse_factor(HTMLParser *parser) {
   HTMLAST *left = 0;
 
   HTMLAST *ast = 0;
-  if (parser->token->type == TOKEN_LT) {
+  if (parser->token->type == HTML_TOKEN_LT) {
     ast = init_html_ast(HTML_AST_ELEMENT);
-    html_parser_eat(parser, TOKEN_LT);
-    if (parser->token->type == TOKEN_DIV) {
-      html_parser_eat(parser, TOKEN_DIV);
-      html_parser_eat(parser, TOKEN_ID);
+    html_parser_eat(parser, HTML_TOKEN_LT);
+    if (parser->token->type == HTML_TOKEN_DIV) {
+      html_parser_eat(parser, HTML_TOKEN_DIV);
+      html_parser_eat(parser, HTML_TOKEN_ID);
       ast->value_str = e_fromstr(parser->token->value->value);
-      html_parser_eat(parser, TOKEN_GT);
+      html_parser_eat(parser, HTML_TOKEN_GT);
 
       return ast;
     }
     ast->value_str = e_fromstr(parser->token->value->value);
-    html_parser_eat(parser, TOKEN_ID);
+    html_parser_eat(parser, HTML_TOKEN_ID);
 
-    if (parser->token->type == TOKEN_ID) {
+    if (parser->token->type == HTML_TOKEN_ID) {
       ast->options = init_html_ast_list();
-      while (parser->token->type == TOKEN_ID) {
+      while (parser->token->type == HTML_TOKEN_ID) {
         HTMLAST *child = html_parser_parse_assignment(parser);
         html_ast_list_append(ast->options, child);
       }
     }
 
-    if (parser->token->type == TOKEN_DIV) {
-      html_parser_eat(parser, TOKEN_DIV);
-      html_parser_eat(parser, TOKEN_GT);
+    if (parser->token->type == HTML_TOKEN_DIV) {
+      html_parser_eat(parser, HTML_TOKEN_DIV);
+      html_parser_eat(parser, HTML_TOKEN_GT);
 
       return ast;
     }
 
-    html_parser_eat(parser, TOKEN_GT);
+    html_parser_eat(parser, HTML_TOKEN_GT);
 
     ast->child = html_parser_parse(parser);
 
@@ -89,10 +89,10 @@ HTMLAST *html_parser_parse_factor(HTMLParser *parser) {
   }
 
   switch (parser->token->type) {
-  case TOKEN_STR:
+  case HTML_TOKEN_STR:
     left = html_parser_parse_string(parser);
     break;
-  case TOKEN_NUMBER:
+  case HTML_TOKEN_NUMBER:
     left = html_parser_parse_number(parser);
     break;
   default: {
@@ -118,7 +118,7 @@ HTMLAST *html_parser_parse_expr(HTMLParser *parser) {
 }
 HTMLAST *html_parser_parse_number(HTMLParser *parser) {
   float v = atof(parser->token->value->value);
-  html_parser_eat(parser, TOKEN_NUMBER);
+  html_parser_eat(parser, HTML_TOKEN_NUMBER);
   HTMLAST *ast = init_html_ast(HTML_AST_NUMBER);
   ast->value_float = v;
   return ast;
@@ -126,7 +126,7 @@ HTMLAST *html_parser_parse_number(HTMLParser *parser) {
 
 HTMLAST *html_parser_parse_string(HTMLParser *parser) {
   char *v = strdup(parser->token->value->value);
-  html_parser_eat(parser, TOKEN_STR);
+  html_parser_eat(parser, HTML_TOKEN_STR);
   HTMLAST *ast = init_html_ast(HTML_AST_STR);
   ast->value_str = e_fromstr(v);
   free(v);
@@ -135,7 +135,7 @@ HTMLAST *html_parser_parse_string(HTMLParser *parser) {
 
 HTMLAST *html_parser_parse_id(HTMLParser *parser) {
   char *v = strdup(parser->token->value->value);
-  html_parser_eat(parser, TOKEN_ID);
+  html_parser_eat(parser, HTML_TOKEN_ID);
   HTMLAST *ast = init_html_ast(HTML_AST_ID);
   ast->value_str = e_fromstr(v);
   free(v);
@@ -145,8 +145,8 @@ HTMLAST *html_parser_parse_id(HTMLParser *parser) {
 HTMLAST *html_parser_parse_assignment(HTMLParser *parser) {
   HTMLAST *ast = init_html_ast(HTML_AST_ASSIGNMENT);
   ast->left = html_parser_parse_id(parser);
-  if (parser->token->type == TOKEN_EQUALS) {
-    html_parser_eat(parser, TOKEN_EQUALS);
+  if (parser->token->type == HTML_TOKEN_EQUALS) {
+    html_parser_eat(parser, HTML_TOKEN_EQUALS);
     ast->right = html_parser_parse_factor(parser);
   }
 

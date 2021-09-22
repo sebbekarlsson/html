@@ -1,11 +1,9 @@
-#ifndef HTML_H
-#define HTML_H
-#include <AST.h>
-#include <lexer.h>
-#include <parser.h>
-#include <token.h>
+#ifndef XXHTML_H
+#define XXHTML_H
+#include <html_lexer.h>
+#include <html_parser.h>
 
-typedef HTMLAST HTMLNode;
+typedef struct HTMLAST_STRUCT HTMLNode;
 
 HTMLNode *html(char *src);
 
