@@ -26,3 +26,6 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 ```
+
+## Known issues
+* Does not parse HTML comments.
