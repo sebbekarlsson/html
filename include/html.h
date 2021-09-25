@@ -15,6 +15,7 @@ char *html_get_propvalue_str(HTMLNode *node, char *propname);
 HTMLNode* html_get_value(HTMLNode* node, char* key);
 
 void html_set_propvalue_str(HTMLNode* node, char* propname, char* value);
+void html_set_propvalue_number(HTMLNode* node, char* propname, float value);
 
 void html_free(HTMLNode *node);
 #endif

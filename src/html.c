@@ -142,3 +142,25 @@ void html_set_propvalue_str(HTMLNode* node, char* propname, char* value) {
   opt->right = right;
   html_ast_list_append(node->options, opt);
 }
+
+void html_set_propvalue_number(HTMLNode* node, char* propname, float value) {
+  HTMLNode* val = html_get_value(node, propname);
+
+  if (val != 0) {
+    val->value_float = value;
+
+    return;
+  }
+
+  if (!node->options) {
+      node->options = init_html_ast_list();
+  }
+  HTMLNode* opt = init_html_ast(HTML_AST_ASSIGNMENT);
+  HTMLNode* left = init_html_ast(HTML_AST_ID);
+  left->value_str = e_fromstr(propname);
+  HTMLNode* right = init_html_ast(HTML_AST_NUMBER);
+  right->value_float = value;
+  opt->left = left;
+  opt->right = right;
+  html_ast_list_append(node->options, opt);
+}
