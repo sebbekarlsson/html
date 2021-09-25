@@ -167,3 +167,17 @@ void html_set_propvalue_number(HTMLNode* node, char* propname, float value) {
   opt->right = right;
   html_ast_list_append(node->options, opt);
 }
+
+HTMLASTList* html_get_siblings(HTMLNode* node) {
+  if (!node) return 0;
+  HTMLASTList* list = init_html_ast_list();
+
+  HTMLNode* n = node->sibling;
+
+  while (n) {
+    html_ast_list_append(list, n);
+    n = n->sibling;
+  }
+
+  return list;
+}

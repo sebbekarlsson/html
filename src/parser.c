@@ -48,10 +48,8 @@ HTMLAST *html_parser_parse_compound(HTMLParser *parser) {
   return ast;
 }
 
-HTMLAST *html_parser_parse_factor(HTMLParser *parser) {
-  HTMLAST *left = 0;
-
-  HTMLAST *ast = 0;
+HTMLAST* html_parser_parse_element(HTMLParser* parser) {
+    HTMLAST *ast = 0;
   if (parser->token->type == HTML_TOKEN_LT) {
     ast = init_html_ast(HTML_AST_ELEMENT);
     html_parser_eat(parser, HTML_TOKEN_LT);
@@ -87,6 +85,24 @@ HTMLAST *html_parser_parse_factor(HTMLParser *parser) {
 
     return ast;
   }
+
+  return ast;
+
+}
+
+HTMLAST *html_parser_parse_factor(HTMLParser *parser) {
+  HTMLAST *left = 0;
+
+  if (parser->token->type == HTML_TOKEN_LT) {
+    HTMLAST* element = html_parser_parse_element(parser);
+    left = element;
+    while (element && parser->token->type == HTML_TOKEN_LT) {
+      element->sibling = html_parser_parse_element(parser);
+      element = element->sibling;
+    }
+  }
+
+  if (left) return left;
 
   switch (parser->token->type) {
   case HTML_TOKEN_STR:

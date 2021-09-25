@@ -21,6 +21,7 @@ typedef struct HTMLAST_STRUCT {
   struct HTMLAST_STRUCT *child;
   struct HTMLAST_STRUCT *left;
   struct HTMLAST_STRUCT *right;
+  struct HTMLAST_STRUCT *sibling;
 } HTMLAST;
 
 typedef struct HTMLASTLIST_STRUCT {

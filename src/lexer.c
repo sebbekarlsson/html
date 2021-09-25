@@ -14,7 +14,7 @@
     return tok;                                                                \
   }
 
-#define LEXER_IS_DONE(lexer) (lexer->i >= lexer->src.length || lexer->c == '\0')
+#define LEXER_IS_DONE(lexer) (lexer->i >= lexer->src.length || lexer->c == '\0' || lexer->c == 0)
 
 HTMLLexer *init_html_lexer(char *src) {
   HTMLLexer *lexer = (HTMLLexer *)calloc(1, sizeof(HTMLLexer));
@@ -62,8 +62,10 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
     case '"':
       return html_lexer_parse_string(lexer);
     default: {
-      printf("Lexer: Unexpected character `%c`", lexer->c);
-      exit(1);
+      if (!LEXER_IS_DONE(lexer)) {
+        printf("Lexer: Unexpected character `%c`", lexer->c);
+        exit(1);
+      }
     }
     }
   }
