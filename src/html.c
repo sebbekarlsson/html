@@ -95,7 +95,7 @@ char *html_get_propvalue_str(HTMLNode *node, char *propname) {
 }
 
 HTMLNode* html_get_value(HTMLNode* node, char* key) {
-   if (!node || !key)
+   if (!node || !key || !node->options || !node->options->items || !node->options->length)
     return 0;
   for (int i = 0; i < node->options->length; i++) {
     HTMLNode *op = (HTMLNode *)node->options->items[i];
