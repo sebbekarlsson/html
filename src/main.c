@@ -6,7 +6,9 @@ int main(int argc, char *argv[]) {
   HTMLNode *root = html("<button value=\"false\"/>");
 
   int len = 0;
+  html_set_propvalue_str(root, "apa", "hello");
   char **propnames = html_get_propnames(root, &len);
+
 
   for (int i = 0; i < len; i++) {
     printf("%s ====> %s\n", propnames[i],

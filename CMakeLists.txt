@@ -46,8 +46,9 @@ FetchContent_Declare(
   #  GIT_REPOSITORY https://github.com/sebbekarlsson/easystr.git
 )
 
+# add_subdirectory(${easystr_SOURCE_DIR})
 FetchContent_MakeAvailable(easystr)
 
 
-target_link_libraries(html PRIVATE easystr)
-target_link_libraries(html_e PRIVATE easystr)
+target_link_libraries(html PUBLIC easystr)
+target_link_libraries(html_e PUBLIC easystr)
