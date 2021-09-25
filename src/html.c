@@ -125,7 +125,10 @@ void html_set_propvalue_str(HTMLNode* node, char* propname, char* value) {
     if (val->value_str) {
       e_free(val->value_str);
     }
-    val->value_str = e_fromstr(value);
+
+    if (value != 0)  {
+      val->value_str = e_fromstr(value);
+    }
 
     return;
   }
@@ -137,7 +140,7 @@ void html_set_propvalue_str(HTMLNode* node, char* propname, char* value) {
   HTMLNode* left = init_html_ast(HTML_AST_ID);
   left->value_str = e_fromstr(propname);
   HTMLNode* right = init_html_ast(HTML_AST_STR);
-  right->value_str = e_fromstr(value);
+  right->value_str = value != 0 ? e_fromstr(value) : 0;
   opt->left = left;
   opt->right = right;
   html_ast_list_append(node->options, opt);
