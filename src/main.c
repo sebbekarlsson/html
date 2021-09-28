@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
-  HTMLNode *root = html("<button value=\"false\"/><input/>");
+  HTMLNode *root = html("<button> bup I am cool<button/>");
 
   int len = 0;
   html_set_propvalue_str(root, "apa", "hello");

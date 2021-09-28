@@ -21,6 +21,8 @@ HTMLToken *html_lexer_parse_id(HTMLLexer *lexer);
 
 HTMLToken *html_lexer_parse_string(HTMLLexer *lexer);
 
+HTMLToken* html_lexer_parse_string_until(HTMLLexer* lexer, char c);
+
 HTMLToken *html_lexer_parse_number(HTMLLexer *lexer);
 
 char html_lexer_peek(HTMLLexer *lexer, int i);

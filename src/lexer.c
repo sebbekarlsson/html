@@ -108,6 +108,23 @@ HTMLToken *html_lexer_parse_string(HTMLLexer *lexer) {
   return tok;
 }
 
+HTMLToken *html_lexer_parse_string_until(HTMLLexer *lexer, char c) {
+  EStr *s = e_init();
+
+  char delim = c;
+
+  while (lexer->c != delim && !(LEXER_IS_DONE(lexer))) {
+    s = e_concat_char(s, lexer->c);
+    html_lexer_advance(lexer);
+  }
+
+  HTMLToken *tok = init_html_token(HTML_TOKEN_STR, s->value);
+
+  e_free(s);
+
+  return tok;
+}
+
 HTMLToken *html_lexer_parse_number(HTMLLexer *lexer) {
   EStr *s = e_init();
 

@@ -42,8 +42,8 @@ include(FetchContent)
 
 FetchContent_Declare(
   easystr
-  URL /home/ianertson/workspace/easystr
-  #  GIT_REPOSITORY https://github.com/sebbekarlsson/easystr.git
+#  URL /home/ianertson/workspace/easystr
+  GIT_REPOSITORY ssh://git@github.com:/sebbekarlsson/easystr.git
 )
 
 # add_subdirectory(${easystr_SOURCE_DIR})

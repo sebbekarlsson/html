@@ -49,7 +49,9 @@ HTMLAST *html_parser_parse_compound(HTMLParser *parser) {
 }
 
 HTMLAST* html_parser_parse_element(HTMLParser* parser) {
-    HTMLAST *ast = 0;
+  HTMLAST *ast = 0;
+
+
   if (parser->token->type == HTML_TOKEN_LT) {
     ast = init_html_ast(HTML_AST_ELEMENT);
     html_parser_eat(parser, HTML_TOKEN_LT);
@@ -81,10 +83,22 @@ HTMLAST* html_parser_parse_element(HTMLParser* parser) {
 
     html_parser_eat(parser, HTML_TOKEN_GT);
 
+    if (parser->token->type == HTML_TOKEN_ID) {
+      HTMLToken* tok = html_lexer_parse_string_until(parser->lexer, '<');
+      parser->token = tok;
+    if (tok) {
+      printf("-> %s\n", tok->value->value);
+      html_parser_eat(parser, HTML_TOKEN_STR);
+    }
+  }
+
     ast->child = html_parser_parse(parser);
 
     return ast;
   }
+
+
+
 
   return ast;
 
@@ -92,6 +106,7 @@ HTMLAST* html_parser_parse_element(HTMLParser* parser) {
 
 HTMLAST *html_parser_parse_factor(HTMLParser *parser) {
   HTMLAST *left = 0;
+
 
   if (parser->token->type == HTML_TOKEN_LT) {
     HTMLAST* element = html_parser_parse_element(parser);
@@ -122,6 +137,7 @@ HTMLAST *html_parser_parse_factor(HTMLParser *parser) {
 }
 
 HTMLAST *html_parser_parse_term(HTMLParser *parser) {
+
   HTMLAST *left = html_parser_parse_factor(parser);
 
   return left;
