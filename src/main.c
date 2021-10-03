@@ -26,5 +26,12 @@ int main(int argc, char *argv[]) {
   free(propnames);
   html_free(root);
 
+  if (li != 0) {
+    if (li->items != 0)
+      free(li->items);
+
+    free(li);
+  }
+
   return 0;
 }

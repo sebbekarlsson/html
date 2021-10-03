@@ -1,6 +1,7 @@
 #include <html_parser.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <html.h>
 
 HTMLParser *init_html_parser(HTMLLexer *lexer) {
   HTMLParser *parser = (HTMLParser *)calloc(1, sizeof(HTMLParser));
@@ -85,11 +86,20 @@ HTMLAST* html_parser_parse_element(HTMLParser* parser) {
 
     if (parser->token->type == HTML_TOKEN_ID) {
       HTMLToken* tok = html_lexer_parse_string_until(parser->lexer, '<');
+      EStr* buff = e_fromstr(parser->token->value->value);
+      if (parser->token)
+        html_token_free(parser->token);
       parser->token = tok;
-    if (tok) {
-      printf("-> %s\n", tok->value->value);
+
+      if (tok != 0) {
+        if (buff != 0) {
+          e_concat_str(buff, tok->value->value);
+          html_set_propvalue_str(ast, "innerText", buff->value);
+        }
       html_parser_eat(parser, HTML_TOKEN_STR);
-    }
+      }
+
+      if (buff !=0) e_free(buff);
   }
 
     ast->child = html_parser_parse(parser);
