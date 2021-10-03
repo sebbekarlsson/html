@@ -91,8 +91,8 @@ HTMLAST* html_parser_parse_element(HTMLParser* parser) {
         html_token_free(parser->token);
       parser->token = tok;
 
-      if (tok != 0) {
-        if (buff != 0) {
+      if (tok != 0 && tok->value != 0 && tok->value->value != 0) {
+        if (buff != 0 && buff->value != 0) {
           e_concat_str(buff, tok->value->value);
           html_set_propvalue_str(ast, "innerText", buff->value);
         }

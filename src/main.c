@@ -3,10 +3,9 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
-  HTMLNode *root = html("<button> bup I am cool<button/>");
+  HTMLNode *root = html("<button> bup I am cool<button/><input>Heja</input>");
 
   int len = 0;
-  html_set_propvalue_str(root, "apa", "hello");
   char **propnames = html_get_propnames(root, &len);
 
   HTMLASTList* li = html_get_siblings(root);
