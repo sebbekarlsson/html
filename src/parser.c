@@ -58,8 +58,8 @@ HTMLAST* html_parser_parse_element(HTMLParser* parser) {
     html_parser_eat(parser, HTML_TOKEN_LT);
     if (parser->token->type == HTML_TOKEN_DIV) {
       html_parser_eat(parser, HTML_TOKEN_DIV);
-      html_parser_eat(parser, HTML_TOKEN_ID);
       ast->value_str = e_fromstr(parser->token->value->value);
+      html_parser_eat(parser, HTML_TOKEN_ID);
       html_parser_eat(parser, HTML_TOKEN_GT);
 
       return ast;
