@@ -10,6 +10,7 @@ typedef struct HTMLAST_STRUCT {
     HTML_AST_NUMBER,
     HTML_AST_COMPOUND,
     HTML_AST_ASSIGNMENT,
+    HTML_AST_STR_ELEMENT,
     HTML_AST_ID
   } type;
 
@@ -22,6 +23,12 @@ typedef struct HTMLAST_STRUCT {
   struct HTMLAST_STRUCT *left;
   struct HTMLAST_STRUCT *right;
   struct HTMLAST_STRUCT *sibling;
+  struct HTMLAST_STRUCT *closing;
+  struct HTMLAST_STRUCT *parent;
+
+  unsigned int is_closed;
+  unsigned int is_complete;
+  unsigned int is_end;
 } HTMLAST;
 
 typedef struct HTMLASTLIST_STRUCT {
@@ -36,5 +43,6 @@ void html_ast_free(HTMLAST *ast);
 HTMLASTList *init_html_ast_list();
 
 void html_ast_list_append(HTMLASTList *list, HTMLAST *ast);
+void html_ast_list_clear_and_free_items(HTMLASTList* list);
 
 #endif

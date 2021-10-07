@@ -10,7 +10,11 @@ typedef struct {
     HTML_TOKEN_EQUALS,
     HTML_TOKEN_NUMBER,
     HTML_TOKEN_DIV,
-    HTML_TOKEN_EOF
+    HTML_TOKEN_EOF,
+    HTML_TOKEN_QUESTION,
+    HTML_TOKEN_COMMA,
+    HTML_TOKEN_LBRACE,
+    HTML_TOKEN_RBRACE
   } type;
   EStr *value;
 } HTMLToken;

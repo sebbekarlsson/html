@@ -1,36 +1,68 @@
-#include <html.h>
-#include <stdio.h>
+
 #include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <html.h>
+
+
+static char* read_file(const char* path) {
+  FILE* file = fopen(path, "r");
+
+  char* buff = 0;
+  uint32_t bufflen = 0;
+
+  char* tmp = 0;
+
+  unsigned int bytes_read = 0;
+  size_t len = 0;
+
+  while ((bytes_read = getline(&tmp, &len, file)) != -1) {
+    bufflen += len;
+    buff = realloc(buff, bufflen * sizeof(char));
+    strcat(buff, tmp);
+  }
+
+  return buff;
+}
+
+void deep(HTMLNode* node, int indent) {
+  if (!node) return;
+
+  if (node->type == HTML_AST_STR_ELEMENT) {
+ //     if (node->sibling) {
+//    deep(node->sibling, indent);
+ // }
+    return;
+  }
+
+  char* name = html_get_value_str(node);
+  char* inner = html_get_propvalue_str(node, "innerText");
+
+  for (int i = 0; i < indent; i++)
+    printf(" ");
+
+  printf("<%s>\n%s", name, inner ? inner : "");
+
+  if (node->children) {
+    for (int i = 0; i < node->children->length; i++)
+      deep(node->children->items[i], indent+1);
+  }
+
+  for (int i = 0; i < indent; i++)
+    printf(" ");
+  printf("</%s>\n", name);
+
+}
 
 int main(int argc, char *argv[]) {
-  HTMLNode *root = html("<button> bup I am cool<button/><input>Heja</input>");
+  char* contents = read_file("assets/index.html");
+  HTMLNode *root = html(contents);
 
-  int len = 0;
-  char **propnames = html_get_propnames(root, &len);
+  deep(root, 0);
 
-  HTMLASTList* li = html_get_siblings(root);
-
-  if (li)
-  for (int i = 0; i < li->length; i++) {
-    printf("%d\n", i);
-
-  }
-
-  for (int i = 0; i < len; i++) {
-    printf("%s ====> %s\n", propnames[i],
-           html_get_propvalue_str(root, propnames[i]));
-    free(propnames[i]);
-  }
-
-  free(propnames);
   html_free(root);
 
-  if (li != 0) {
-    if (li->items != 0)
-      free(li->items);
-
-    free(li);
-  }
-
+  free(contents);
   return 0;
 }

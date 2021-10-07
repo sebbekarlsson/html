@@ -5,6 +5,8 @@ HTMLAST *init_html_ast(int type) {
   HTMLAST *ast = (HTMLAST *)calloc(1, sizeof(HTMLAST));
   ast->type = type;
   ast->value_float = 0;
+  ast->is_complete = 0;
+  ast->is_end = 0;
   return ast;
 }
 
@@ -61,4 +63,17 @@ void html_ast_list_append(HTMLASTList *list, HTMLAST *ast) {
   list->items =
       (HTMLAST **)realloc(list->items, list->length * sizeof(HTMLAST *));
   list->items[list->length - 1] = ast;
+}
+
+
+void html_ast_list_clear_and_free_items(HTMLASTList* list) {
+  if (!list || !list->length || !list->items) return;
+
+  for (int i = 0; i < list->length; i++) {
+      html_ast_free(list->items[i]);
+  }
+
+  free(list->items);
+  list->length = 0;
+
 }

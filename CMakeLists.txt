@@ -52,3 +52,23 @@ FetchContent_MakeAvailable(easystr)
 
 target_link_libraries(html PUBLIC easystr)
 target_link_libraries(html_e PUBLIC easystr)
+
+
+
+add_custom_command(
+    OUTPUT always_rebuild
+    COMMAND cmake -E echo
+    )
+
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets
+    COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Copying assets"
+    DEPENDS always_rebuild
+)
+
+add_custom_target(project_assets ALL
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/assets
+    COMMAND echo "yo"
+    VERBATIM
+)

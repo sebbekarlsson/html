@@ -136,6 +136,7 @@ void html_set_propvalue_str(HTMLNode* node, char* propname, char* value) {
   if (!node->options) {
       node->options = init_html_ast_list();
   }
+
   HTMLNode* opt = init_html_ast(HTML_AST_ASSIGNMENT);
   HTMLNode* left = init_html_ast(HTML_AST_ID);
   left->value_str = e_fromstr(propname);
