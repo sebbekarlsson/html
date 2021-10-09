@@ -78,10 +78,18 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST* parent) {
   html_parser_eat(parser, HTML_TOKEN_ID);  // div
                                            //
   collect_options(parser, ast, ast);
+
+  if (parser->token->type == HTML_TOKEN_DIV) {
+    ast->is_self_closing = 1;
+    html_parser_eat(parser, HTML_TOKEN_DIV);
+  }
+
   html_parser_eat(parser, HTML_TOKEN_GT);  // >
 
   if (!ast->is_end) {
-    HTMLAST* child = html_parser_parse_element(parser, ast);
+
+    if (!ast->is_self_closing) {
+      HTMLAST* child = html_parser_parse_element(parser, ast);
 
       char* child_name = html_get_value_str(child);
 
@@ -89,6 +97,7 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST* parent) {
         child = html_parser_parse_element(parser, ast);
         child_name = html_get_value_str(child);
       }
+    }
     if (parent && parent != ast) {
       if (!parent->children) parent->children = init_html_ast_list();
           html_ast_list_append(parent->children, ast);

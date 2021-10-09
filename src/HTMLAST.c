@@ -7,6 +7,7 @@ HTMLAST *init_html_ast(int type) {
   ast->value_float = 0;
   ast->is_complete = 0;
   ast->is_end = 0;
+  ast->is_self_closing = 0;
   return ast;
 }
 

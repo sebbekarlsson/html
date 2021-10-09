@@ -29,6 +29,7 @@ typedef struct HTMLAST_STRUCT {
   unsigned int is_closed;
   unsigned int is_complete;
   unsigned int is_end;
+  unsigned int is_self_closing;
 } HTMLAST;
 
 typedef struct HTMLASTLIST_STRUCT {
