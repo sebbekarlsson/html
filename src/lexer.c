@@ -44,10 +44,13 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
   while (!LEXER_IS_DONE(lexer)) {
     html_lexer_skip_whitespace(lexer);
 
-    if (isalnum(lexer->c))
-      return html_lexer_parse_id(lexer);
     if (isdigit(lexer->c))
       return html_lexer_parse_number(lexer);
+
+    if (isalnum(lexer->c))
+      return html_lexer_parse_id(lexer);
+
+
 
     switch (lexer->c) {
     case '<':
