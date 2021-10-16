@@ -1,5 +1,9 @@
 #ifndef XXHTML_H
 #define XXHTML_H
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <html_lexer.h>
 #include <html_parser.h>
 
@@ -20,4 +24,8 @@ void html_set_propvalue_number(HTMLNode *node, char *propname, float value);
 char *html_to_string(HTMLNode *node, unsigned int skip_tags);
 
 void html_free(HTMLNode *node);
+#ifdef __cplusplus
+}
+#endif
+
 #endif
