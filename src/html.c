@@ -75,22 +75,25 @@ float html_get_propvalue_number(HTMLNode *node, char *propname) {
   return 0;
 }
 char *html_get_propvalue_str(HTMLNode *node, char *propname) {
-  if (!node || !propname || node->options == 0 || node->options->items == 0)
+  if (!node || !propname)
     return 0;
-  for (int i = 0; i < node->options->length; i++) {
-    HTMLNode *op = (HTMLNode *)node->options->items[i];
-    if (!op || !op->left)
-      continue;
-    HTMLNode *left = op->left;
-    HTMLNode *right = op->right;
-    if (!right)
-      continue;
 
-    char *name = html_get_value_str(left);
-    if (!name)
-      continue;
-    if (strcmp(name, propname) == 0) {
-      return html_get_value_str(right);
+  if (node->options && node->options->items) {
+    for (int i = 0; i < node->options->length; i++) {
+      HTMLNode *op = (HTMLNode *)node->options->items[i];
+      if (!op || !op->left)
+        continue;
+      HTMLNode *left = op->left;
+      HTMLNode *right = op->right;
+      if (!right)
+        continue;
+
+      char *name = html_get_value_str(left);
+      if (!name)
+        continue;
+      if (strcmp(name, propname) == 0) {
+        return html_get_value_str(right);
+      }
     }
   }
 
