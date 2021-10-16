@@ -1,6 +1,5 @@
 #ifndef XHTML_AST_H
 #define XHTML_AST_H
-#include <easystr.h>
 #include <stdint.h>
 
 typedef struct HTMLAST_STRUCT {
@@ -15,14 +14,13 @@ typedef struct HTMLAST_STRUCT {
   } type;
 
   float value_float;
-  EStr *value_str;
+  char *value_str;
 
   struct HTMLASTLIST_STRUCT *options;
   struct HTMLASTLIST_STRUCT *children;
   struct HTMLAST_STRUCT *child;
   struct HTMLAST_STRUCT *left;
   struct HTMLAST_STRUCT *right;
-  struct HTMLAST_STRUCT *sibling;
   struct HTMLAST_STRUCT *closing;
   struct HTMLAST_STRUCT *parent;
 
@@ -42,8 +40,9 @@ HTMLAST *init_html_ast(int type);
 void html_ast_free(HTMLAST *ast);
 
 HTMLASTList *init_html_ast_list();
+void html_ast_list_free(HTMLASTList *list);
 
 void html_ast_list_append(HTMLASTList *list, HTMLAST *ast);
-void html_ast_list_clear_and_free_items(HTMLASTList* list);
+void html_ast_list_clear_and_free_items(HTMLASTList *list);
 
 #endif

@@ -8,18 +8,24 @@ HTMLAST *init_html_ast(int type) {
   ast->is_complete = 0;
   ast->is_end = 0;
   ast->is_self_closing = 0;
+  ast->closing = 0;
   return ast;
 }
 
 void html_ast_free(HTMLAST *ast) {
   if (!ast)
     return;
-  if (ast->value_str)
-    e_free(ast->value_str);
+  if (ast->value_str) {
+    free(ast->value_str);
+    ast->value_str = 0;
+  }
 
   if (ast->children) {
     for (int i = 0; i < ast->children->length; i++) {
-      html_ast_free(ast->children->items[i]);
+      HTMLAST *child = ast->children->items[i];
+
+      if (child != 0)
+        html_ast_free(child);
     }
 
     free(ast->children->items);
@@ -28,7 +34,10 @@ void html_ast_free(HTMLAST *ast) {
 
   if (ast->options) {
     for (int i = 0; i < ast->options->length; i++) {
-      html_ast_free(ast->options->items[i]);
+      HTMLAST *child = ast->options->items[i];
+
+      if (child != 0)
+        html_ast_free(child);
     }
 
     free(ast->options->items);
@@ -54,6 +63,22 @@ HTMLASTList *init_html_ast_list() {
   return list;
 }
 
+void html_ast_list_free(HTMLASTList *list) {
+  if (!list)
+    return;
+
+  if (list->items) {
+    for (uint32_t i = 0; i < list->length; i++) {
+      HTMLAST *child = list->items[i];
+      if (child != 0)
+        html_ast_free(child);
+    }
+
+    free(list->items);
+  }
+  free(list);
+}
+
 void html_ast_list_append(HTMLASTList *list, HTMLAST *ast) {
   if (!list)
     return;
@@ -66,15 +91,14 @@ void html_ast_list_append(HTMLASTList *list, HTMLAST *ast) {
   list->items[list->length - 1] = ast;
 }
 
-
-void html_ast_list_clear_and_free_items(HTMLASTList* list) {
-  if (!list || !list->length || !list->items) return;
+void html_ast_list_clear_and_free_items(HTMLASTList *list) {
+  if (!list || !list->length || !list->items)
+    return;
 
   for (int i = 0; i < list->length; i++) {
-      html_ast_free(list->items[i]);
+    html_ast_free(list->items[i]);
   }
 
   free(list->items);
   list->length = 0;
-
 }

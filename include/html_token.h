@@ -1,6 +1,5 @@
 #ifndef XHTML_HTML_TOKEN_H
 #define XHTML_HTML_TOKEN_H
-#include <easystr.h>
 typedef struct {
   enum {
     HTML_TOKEN_ID,
@@ -14,9 +13,10 @@ typedef struct {
     HTML_TOKEN_QUESTION,
     HTML_TOKEN_COMMA,
     HTML_TOKEN_LBRACE,
-    HTML_TOKEN_RBRACE
+    HTML_TOKEN_RBRACE,
+    HTML_TOKEN_EXCL
   } type;
-  EStr *value;
+  char *value;
 } HTMLToken;
 
 HTMLToken *init_html_token(int type, char *value);

@@ -6,8 +6,9 @@ project(html)
 file(GLOB PUBLIC_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
 file(GLOB html_sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.c)
 
+set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
-# add_compile_options(-g -Wall)
+add_compile_options(-g -Wall)
 
 add_executable(html_e ${html_sources})
 
@@ -51,22 +52,11 @@ target_include_directories(
       ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 
-include(FetchContent)
+include(libraries)
 
-FetchContent_Declare(
-  easystr
-#  URL /home/ianertson/workspace/easystr
-  GIT_REPOSITORY ssh://git@github.com:/sebbekarlsson/easystr.git
-)
-
-# add_subdirectory(${easystr_SOURCE_DIR})
-FetchContent_MakeAvailable(easystr)
-
-
-target_link_libraries(html PUBLIC easystr)
-target_link_libraries(html_e PUBLIC easystr)
-target_link_libraries(html_static PUBLIC easystr)
-
+init_libraries(html_e)
+init_libraries(html_static)
+init_libraries(html)
 
 
 add_custom_command(
