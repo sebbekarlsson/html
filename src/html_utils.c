@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void str_append(char **s1, char *s2) {
+void html_str_append(char **s1, char *s2) {
   char *s = *s1;
   size_t len = s ? strlen(s) : 0;
   size_t newlen = len + (s2 ? strlen(s2) : 0);
@@ -22,8 +22,8 @@ char *str_from_char(char c) {
   return buff;
 }
 
-void str_append_char(char **s1, char c) {
+void html_str_append_char(char **s1, char c) {
   char *strchar = str_from_char(c);
-  str_append(s1, strchar);
+  html_str_append(s1, strchar);
   free(strchar);
 }

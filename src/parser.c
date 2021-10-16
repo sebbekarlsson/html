@@ -97,11 +97,11 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
   }
   char *name = 0;
   if (extra) {
-    str_append(&name, extra);
+    html_str_append(&name, extra);
     free(extra);
   }
   if (parser->token->value) {
-    str_append(&name, parser->token->value);
+    html_str_append(&name, parser->token->value);
   }
   ast->value_str = name;
   html_parser_eat(parser, HTML_TOKEN_ID); // div
@@ -180,7 +180,7 @@ HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
     return 0;
   HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, '<');
   char *buff = strdup(parser->token->value);
-  str_append(&buff, tok->value);
+  html_str_append(&buff, tok->value);
 
   if (tok->value) {
     free(tok->value);

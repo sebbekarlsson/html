@@ -85,7 +85,7 @@ HTMLToken *html_lexer_parse_id(HTMLLexer *lexer) {
 
   while ((isalnum(lexer->c) || lexer->c == '-' || lexer->c == '_') &&
          !(LEXER_IS_DONE(lexer))) {
-    str_append_char(&s, lexer->c);
+    html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);
   }
 
@@ -102,7 +102,7 @@ HTMLToken *html_lexer_parse_string(HTMLLexer *lexer) {
   html_lexer_advance(lexer);
 
   while (lexer->c != delim && !(LEXER_IS_DONE(lexer))) {
-    str_append_char(&s, lexer->c);
+    html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);
   }
 
@@ -119,7 +119,7 @@ HTMLToken *html_lexer_parse_string_until(HTMLLexer *lexer, char c) {
   char delim = c;
 
   while (lexer->c != delim && !(LEXER_IS_DONE(lexer))) {
-    str_append_char(&s, lexer->c);
+    html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);
   }
 
@@ -134,13 +134,13 @@ HTMLToken *html_lexer_parse_number(HTMLLexer *lexer) {
   char *s = 0;
 
   while ((isdigit(lexer->c)) && !(LEXER_IS_DONE(lexer))) {
-    str_append_char(&s, lexer->c);
+    html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);
   }
 
   if (lexer->c == '.') {
     while ((isdigit(lexer->c) || lexer->c == '.') && !(LEXER_IS_DONE(lexer))) {
-      str_append_char(&s, lexer->c);
+      html_str_append_char(&s, lexer->c);
       html_lexer_advance(lexer);
     }
   }

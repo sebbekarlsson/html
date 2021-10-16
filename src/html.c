@@ -187,12 +187,12 @@ char *html_options_to_string(HTMLASTList *options, unsigned int skip_tags) {
     char *optstr = html_to_string(opt, skip_tags);
 
     if (optstr) {
-      str_append(&str, optstr);
+      html_str_append(&str, optstr);
       free(optstr);
     }
 
     if (i < options->length - 1) {
-      str_append(&str, " ");
+      html_str_append(&str, " ");
     }
   }
 
@@ -212,7 +212,7 @@ char *html_list_to_string(HTMLASTList *list, unsigned int skip_tags) {
     char *childstr = html_to_string(child, skip_tags);
 
     if (childstr) {
-      str_append(&str, childstr);
+      html_str_append(&str, childstr);
       free(childstr);
     }
   }
@@ -224,38 +224,38 @@ char *html_element_to_string(HTMLNode *node, unsigned int skip_tags) {
   char *str = 0;
 
   if (skip_tags == 0) {
-    str_append(&str, "<");
+    html_str_append(&str, "<");
     if (node->value_str) {
-      str_append(&str, node->value_str);
+      html_str_append(&str, node->value_str);
     }
     if (node->options && node->options->length) {
       char *optionstr = html_options_to_string(node->options, skip_tags);
       if (optionstr) {
-        str_append(&str, " ");
-        str_append(&str, optionstr);
+        html_str_append(&str, " ");
+        html_str_append(&str, optionstr);
         free(optionstr);
       }
     }
 
-    str_append(&str, ">");
+    html_str_append(&str, ">");
   }
 
   if (node->children) {
     char *childrenstr = html_list_to_string(node->children, skip_tags);
     if (childrenstr) {
-      str_append(&str, childrenstr);
+      html_str_append(&str, childrenstr);
       free(childrenstr);
     }
   }
 
   if (skip_tags == 0) {
     if (node->is_self_closing == 0) {
-      str_append(&str, "<");
-      str_append(&str, "/");
+      html_str_append(&str, "<");
+      html_str_append(&str, "/");
       if (node->value_str) {
-        str_append(&str, node->value_str);
+        html_str_append(&str, node->value_str);
       }
-      str_append(&str, ">");
+      html_str_append(&str, ">");
     }
   }
 
@@ -268,13 +268,13 @@ char *_html_str_to_string(HTMLNode *node, unsigned int skip_tags) {
 
 char *html_str_to_string(HTMLNode *node, unsigned int skip_tags) {
   char *s = 0;
-  str_append(&s, "\"");
+  html_str_append(&s, "\"");
   char *value = node->value_str ? strdup(node->value_str) : strdup("");
   if (value) {
-    str_append(&s, value);
+    html_str_append(&s, value);
     free(value);
   }
-  str_append(&s, "\"");
+  html_str_append(&s, "\"");
   return s;
 }
 char *html_number_to_string(HTMLNode *node, unsigned int skip_tags) {
@@ -291,17 +291,17 @@ char *html_assignment_to_string(HTMLNode *node, unsigned int skip_tags) {
   if (node->left) {
     char *leftstr = html_to_string(node->left, skip_tags);
     if (leftstr) {
-      str_append(&str, leftstr);
+      html_str_append(&str, leftstr);
       free(leftstr);
     }
   }
 
   if (node->right) {
-    str_append(&str, "=");
+    html_str_append(&str, "=");
 
     char *rightstr = html_to_string(node->right, skip_tags);
     if (rightstr) {
-      str_append(&str, rightstr);
+      html_str_append(&str, rightstr);
       free(rightstr);
     }
   }
