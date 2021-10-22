@@ -15,7 +15,7 @@ static char *read_file(char *filepath) {
 }
 
 int main(int argc, char *argv[]) {
-  char *contents = read_file("assets/example_org.html");
+  char *contents = read_file("assets/compute.html");
   HTMLNode *root = html(contents);
 
   char *rootstr = html_to_string(root, 0);

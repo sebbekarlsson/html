@@ -10,7 +10,8 @@ typedef struct HTMLAST_STRUCT {
     HTML_AST_COMPOUND,
     HTML_AST_ASSIGNMENT,
     HTML_AST_STR_ELEMENT,
-    HTML_AST_ID
+    HTML_AST_ID,
+    HTML_AST_COMPUTE
   } type;
 
   float value_float;

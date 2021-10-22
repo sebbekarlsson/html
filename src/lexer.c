@@ -65,6 +65,10 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
       LEXER_TOK(lexer, HTML_TOKEN_DIV);
     case '!':
       LEXER_TOK(lexer, HTML_TOKEN_EXCL);
+    case '{':
+      LEXER_TOK(lexer, HTML_TOKEN_LBRACE);
+    case '}':
+      LEXER_TOK(lexer, HTML_TOKEN_RBRACE);
     case '\'':
     case '"':
       return html_lexer_parse_string(lexer);
@@ -113,17 +117,21 @@ HTMLToken *html_lexer_parse_string(HTMLLexer *lexer) {
   return tok;
 }
 
-HTMLToken *html_lexer_parse_string_until(HTMLLexer *lexer, char c) {
+HTMLToken *html_lexer_parse_string_until(HTMLLexer *lexer, char c, char b) {
   char *s = 0;
 
   char delim = c;
+  int type = HTML_TOKEN_STR;
 
-  while (lexer->c != delim && !(LEXER_IS_DONE(lexer))) {
+  while (lexer->c != delim && lexer->c != b && !(LEXER_IS_DONE(lexer))) {
+    if (lexer->c == '{') {
+      type = HTML_TOKEN_COMPUTE;
+    }
     html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);
   }
 
-  HTMLToken *tok = init_html_token(HTML_TOKEN_STR, s);
+  HTMLToken *tok = init_html_token(type, s);
 
   free(s);
 

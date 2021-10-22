@@ -166,8 +166,16 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
 
 HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent) {
   char *v = strdup(parser->token->value);
-  html_parser_eat(parser, HTML_TOKEN_STR);
-  HTMLAST *ast = init_html_ast(HTML_AST_STR_ELEMENT);
+
+  int type = HTML_AST_STR_ELEMENT;
+
+  if (parser->token->type == HTML_TOKEN_STR) {
+    html_parser_eat(parser, HTML_TOKEN_STR);
+  } else {
+    html_parser_eat(parser, HTML_TOKEN_COMPUTE);
+    type = HTML_AST_COMPUTE;
+  }
+  HTMLAST *ast = init_html_ast(type);
   ast->value_str = strdup(v);
   free(v);
 
@@ -178,7 +186,7 @@ HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent) {
 HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
   if (parser->token->type == HTML_TOKEN_LT || parser->lexer->c == 0)
     return 0;
-  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, '<');
+  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, '<', '{');
   char *buff = strdup(parser->token->value);
   html_str_append(&buff, tok->value);
 
