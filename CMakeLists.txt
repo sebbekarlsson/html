@@ -52,12 +52,17 @@ target_include_directories(
       ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 
-include(libraries)
+include(FetchContent)
+FetchContent_Declare(
+  hashmap_static
+  GIT_REPOSITORY https://github.com/sebbekarlsson/hashmap.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(hashmap_static)
 
-init_libraries(html_e)
-init_libraries(html_static)
-init_libraries(html)
-
+target_link_libraries(html PUBLIC hashmap_static)
+target_link_libraries(html_static PUBLIC hashmap_static)
+target_link_libraries(html_e PUBLIC hashmap_static)
 
 add_custom_command(
     OUTPUT always_rebuild

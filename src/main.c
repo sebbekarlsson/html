@@ -15,10 +15,12 @@ static char *read_file(char *filepath) {
 }
 
 int main(int argc, char *argv[]) {
-  char *contents = read_file("assets/compute.html");
+  char *contents = read_file("assets/index.html");
   HTMLNode *root = html(contents);
 
   char *rootstr = html_to_string(root, 0);
+
+  html_get_propvalue_str(root, "lang");
 
   if (rootstr) {
     printf("%s\n", rootstr);

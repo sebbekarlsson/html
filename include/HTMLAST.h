@@ -1,6 +1,7 @@
 #ifndef XHTML_AST_H
 #define XHTML_AST_H
 #include <stdint.h>
+#include <hashmap/map.h>
 
 typedef struct HTMLAST_STRUCT {
   enum {
@@ -29,6 +30,7 @@ typedef struct HTMLAST_STRUCT {
   unsigned int is_complete;
   unsigned int is_end;
   unsigned int is_self_closing;
+  map_T* props;
 } HTMLAST;
 
 typedef struct HTMLASTLIST_STRUCT {

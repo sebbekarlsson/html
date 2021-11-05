@@ -9,6 +9,7 @@ HTMLAST *init_html_ast(int type) {
   ast->is_end = 0;
   ast->is_self_closing = 0;
   ast->closing = 0;
+  ast->props = NEW_MAP();
   return ast;
 }
 

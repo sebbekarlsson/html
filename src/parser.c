@@ -66,6 +66,10 @@ static void collect_options(HTMLParser *parser, HTMLAST *ast, HTMLAST *parent) {
     while (parser->token->type == HTML_TOKEN_ID) {
       HTMLAST *child = html_parser_parse_assignment(parser, parent);
       html_ast_list_append(ast->options, child);
+
+      if (child->left && child->left->value_str != 0) {
+        map_set(ast->props, child->left->value_str, child->right);
+      }
     }
   }
 }

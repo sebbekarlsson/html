@@ -55,6 +55,11 @@ char **html_get_propnames(HTMLNode *node, int *len) {
 float html_get_propvalue_number(HTMLNode *node, char *propname) {
   if (!node || !propname || node->options == 0 || node->options->items == 0)
     return 0;
+
+
+  HTMLNode* prop = (HTMLNode*) map_get_value(node->props, propname);
+  if (prop != 0) return prop->value_float;
+
   for (int i = 0; i < node->options->length; i++) {
     HTMLNode *op = (HTMLNode *)node->options->items[i];
     if (!op || !op->left)
@@ -77,6 +82,10 @@ float html_get_propvalue_number(HTMLNode *node, char *propname) {
 char *html_get_propvalue_str(HTMLNode *node, char *propname) {
   if (!node || !propname)
     return 0;
+
+  HTMLNode* prop = (HTMLNode*) map_get_value(node->props, propname);
+
+  if (prop != 0) return prop->value_str;
 
   if (node->options && node->options->items) {
     for (int i = 0; i < node->options->length; i++) {
@@ -108,6 +117,10 @@ HTMLNode *html_get_value(HTMLNode *node, char *key) {
   if (!node || !key || !node->options || !node->options->items ||
       !node->options->length)
     return 0;
+
+  HTMLNode* prop = (HTMLNode*) map_get_value(node->props, key);
+  if (prop != 0) return prop;
+
   for (int i = 0; i < node->options->length; i++) {
     HTMLNode *op = (HTMLNode *)node->options->items[i];
     if (!op || !op->left)
@@ -155,6 +168,7 @@ void html_set_propvalue_str(HTMLNode *node, char *propname, char *value) {
   opt->left = left;
   opt->right = right;
   html_ast_list_append(node->options, opt);
+  map_set(node->props, propname, right);
 }
 
 void html_set_propvalue_number(HTMLNode *node, char *propname, float value) {
@@ -177,6 +191,8 @@ void html_set_propvalue_number(HTMLNode *node, char *propname, float value) {
   opt->left = left;
   opt->right = right;
   html_ast_list_append(node->options, opt);
+
+  map_set(node->props, propname, right);
 }
 
 char *html_options_to_string(HTMLASTList *options, unsigned int skip_tags) {
