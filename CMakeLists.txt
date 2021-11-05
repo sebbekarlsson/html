@@ -57,8 +57,11 @@ FetchContent_Declare(
   hashmap_static
   GIT_REPOSITORY https://github.com/sebbekarlsson/hashmap.git
   GIT_TAG master
-)
-FetchContent_MakeAvailable(hashmap_static)
+  )
+
+if (NOT TARGET hashmap_static)
+  FetchContent_MakeAvailable(hashmap_static)
+endif()
 
 target_link_libraries(html PUBLIC hashmap_static)
 target_link_libraries(html_static PUBLIC hashmap_static)
