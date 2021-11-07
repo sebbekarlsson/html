@@ -190,7 +190,13 @@ HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent) {
 HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
   if (parser->token->type == HTML_TOKEN_LT || parser->lexer->c == 0)
     return 0;
-  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, '<', '{');
+
+  unsigned int allow_compute = 1;
+  if (parent != 0 && parent->value_str != 0) {
+    allow_compute = strcmp(parent->value_str, "style") != 0;
+  }
+
+  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, '<', allow_compute ? '{' : 0, allow_compute);
   char *buff = strdup(parser->token->value);
   html_str_append(&buff, tok->value);
 

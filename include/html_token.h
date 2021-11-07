@@ -15,7 +15,8 @@ typedef struct {
     HTML_TOKEN_LBRACE,
     HTML_TOKEN_RBRACE,
     HTML_TOKEN_EXCL,
-    HTML_TOKEN_COMPUTE
+    HTML_TOKEN_COMPUTE,
+    HTML_TOKEN_DOT
   } type;
   char *value;
 } HTMLToken;
