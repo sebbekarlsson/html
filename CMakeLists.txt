@@ -10,6 +10,9 @@ set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake/m
 
 add_compile_options(-g -Wall)
 
+
+add_subdirectory(test)
+
 add_executable(html_e ${html_sources})
 
 
