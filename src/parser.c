@@ -74,7 +74,18 @@ static void collect_options(HTMLParser *parser, HTMLAST *ast, HTMLAST *parent) {
   }
 }
 
+HTMLAST* html_parser_parse_comment(HTMLParser* parser, HTMLAST* parent) {
+  HTMLAST* ast = init_html_ast(HTML_AST_COMMENT);
+  ast->value_str = strdup(parser->token->value);
+  html_parser_eat(parser, HTML_TOKEN_COMMENT);
+  return ast;
+}
+
 HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
+
+  if (parser->token->type == HTML_TOKEN_COMMENT) {
+    return html_parser_parse_comment(parser, parent);
+  }
   if (parser->token->type != HTML_TOKEN_EOF &&
       parser->token->type != HTML_TOKEN_LT &&
       parser->token->type != HTML_TOKEN_GT) {
@@ -109,9 +120,14 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
   }
   ast->value_str = name;
 
-  if (parser->token->type == HTML_TOKEN_DOCTYPE) {
+  if (parser->token->type == HTML_TOKEN_DOCTYPE || parser->token->type == HTML_TOKEN_COMMENT) {
 
-    html_parser_eat(parser, HTML_TOKEN_DOCTYPE);
+    if (parser->token->type == HTML_TOKEN_COMMENT) {
+
+    html_parser_eat(parser, HTML_TOKEN_COMMENT);
+    } else {
+      html_parser_eat(parser, HTML_TOKEN_DOCTYPE);
+    }
     ast->is_self_closing = 1;
     ast->is_end = 1;
     ast->is_comment = 1;
@@ -125,6 +141,10 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
   if (parser->token->type == HTML_TOKEN_DIV) {
     ast->is_self_closing = 1;
     html_parser_eat(parser, HTML_TOKEN_DIV);
+  }
+
+  while (parser->token->type == HTML_TOKEN_COMMA) {
+    html_parser_eat(parser, HTML_TOKEN_COMMA);
   }
 
   html_parser_eat(parser, HTML_TOKEN_GT); // >
@@ -204,7 +224,7 @@ HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
 
   unsigned int allow_compute = 1;
   if (parent != 0 && parent->value_str != 0) {
-    allow_compute = strcmp(parent->value_str, "style") != 0;
+    allow_compute = strcmp(parent->value_str, "style") != 0 && strcmp(parent->value_str, "script") != 0 && strcmp(parent->value_str, "pre") != 0;
   }
 
   HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, '<', allow_compute ? '{' : 0, allow_compute);
@@ -230,6 +250,7 @@ HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
 
 HTMLAST *html_parser_parse_factor(HTMLParser *parser, HTMLAST *parent) {
   HTMLAST *left = 0;
+
 
   if (parser->token->type == HTML_TOKEN_LT) {
     left = html_parser_parse_element(parser, parent);

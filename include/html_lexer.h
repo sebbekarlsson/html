@@ -28,4 +28,6 @@ HTMLToken *html_lexer_parse_number(HTMLLexer *lexer);
 char html_lexer_peek(HTMLLexer *lexer, int i);
 
 void html_lexer_skip_whitespace(HTMLLexer *lexer);
+
+HTMLToken *html_lexer_parse_comment(HTMLLexer *lexer);
 #endif

@@ -4,6 +4,7 @@ typedef struct {
   enum {
   HTML_TOKEN_ID,
   HTML_TOKEN_DOCTYPE,
+  HTML_TOKEN_COMMENT,
     HTML_TOKEN_LT,
     HTML_TOKEN_GT,
     HTML_TOKEN_STR,

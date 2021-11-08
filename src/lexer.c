@@ -54,6 +54,10 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
     if (isalnum(lexer->c))
       return html_lexer_parse_id(lexer);
 
+    if (lexer->c == '<' && html_lexer_peek(lexer, 1) == '!' && html_lexer_peek(lexer, 2) == '-' && html_lexer_peek(lexer, 3) == '-') {
+      return html_lexer_parse_comment(lexer);
+    }
+
     switch (lexer->c) {
     case '.':
       LEXER_TOK(lexer, HTML_TOKEN_DOT);
@@ -71,12 +75,14 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
       LEXER_TOK(lexer, HTML_TOKEN_LBRACE);
     case '}':
       LEXER_TOK(lexer, HTML_TOKEN_RBRACE);
+    case ',':
+      LEXER_TOK(lexer, HTML_TOKEN_COMMA);
     case '\'':
     case '"':
       return html_lexer_parse_string(lexer);
     default: {
       if (!LEXER_IS_DONE(lexer)) {
-        printf("Lexer: Unexpected character `%c`", lexer->c);
+        printf("(HTML) Lexer: Unexpected character `%c`\n", lexer->c);
         exit(1);
       }
     }
@@ -118,6 +124,36 @@ HTMLToken *html_lexer_parse_string(HTMLLexer *lexer) {
 
   free(s);
   html_lexer_advance(lexer);
+  return tok;
+}
+
+
+#define IS_END_OF_COMMENT() (lexer->c == '-' && html_lexer_peek(lexer, 1) == '-' && html_lexer_peek(lexer, 2) == '>')
+
+HTMLToken *html_lexer_parse_comment(HTMLLexer *lexer) {
+  char *s = 0;
+
+  int type = HTML_TOKEN_COMMENT;
+
+  while ((!IS_END_OF_COMMENT()) && !(LEXER_IS_DONE(lexer))) {
+    html_str_append_char(&s, lexer->c);
+    html_lexer_advance(lexer);
+  }
+
+  html_str_append_char(&s, lexer->c);
+  html_lexer_advance(lexer);
+  html_str_append_char(&s, lexer->c);
+  html_lexer_advance(lexer);
+  html_str_append_char(&s, lexer->c);
+  html_lexer_advance(lexer);
+
+
+  html_lexer_skip_whitespace(lexer);
+
+  HTMLToken *tok = init_html_token(type, s);
+
+  free(s);
+
   return tok;
 }
 
