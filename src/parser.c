@@ -171,11 +171,9 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
   }
 
   if (ast->is_doctype) {
-    HTMLAST* document = init_html_ast(HTML_AST_COMPOUND);
-    document->value_str = strdup("root");
-    document->children = init_html_ast_list();
-    html_ast_list_append(document->children, html_parser_parse_expr(parser, parent));
-    return document;
+    HTMLAST* next = html_parser_parse_expr(parser, parent);
+    next->head = ast;
+    return next;
   }
 
   return ast;

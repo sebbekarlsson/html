@@ -26,6 +26,7 @@ typedef struct HTMLAST_STRUCT {
   struct HTMLAST_STRUCT *closing;
   struct HTMLAST_STRUCT *parent;
   struct HTMLAST_STRUCT *next;
+  struct HTMLAST_STRUCT *head; // <!doctype html ...>
 
   unsigned int is_closed;
   unsigned int is_complete;

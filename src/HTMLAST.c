@@ -54,6 +54,9 @@ void html_ast_free(HTMLAST *ast) {
   if (ast->right)
     html_ast_free(ast->right);
 
+  if (ast->head)
+    html_ast_free(ast->head);
+
   free(ast);
 }
 
