@@ -95,7 +95,9 @@ HTMLToken *html_lexer_parse_id(HTMLLexer *lexer) {
     html_lexer_advance(lexer);
   }
 
-  HTMLToken *tok = init_html_token(HTML_TOKEN_ID, s);
+  int type = HTML_TOKEN_ID;
+  if (s && (strcmp(s, "doctype") == 0 || strcmp(s, "DOCTYPE") == 0) ) type = HTML_TOKEN_DOCTYPE;
+  HTMLToken *tok = init_html_token(type, s);
   free(s);
   return tok;
 }

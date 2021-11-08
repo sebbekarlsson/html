@@ -25,11 +25,14 @@ typedef struct HTMLAST_STRUCT {
   struct HTMLAST_STRUCT *right;
   struct HTMLAST_STRUCT *closing;
   struct HTMLAST_STRUCT *parent;
+  struct HTMLAST_STRUCT *next;
 
   unsigned int is_closed;
   unsigned int is_complete;
   unsigned int is_end;
   unsigned int is_self_closing;
+  unsigned int is_comment;
+  unsigned int is_doctype;
   map_T* props;
 } HTMLAST;
 

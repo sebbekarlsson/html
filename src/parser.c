@@ -108,8 +108,18 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
     html_str_append(&name, parser->token->value);
   }
   ast->value_str = name;
-  html_parser_eat(parser, HTML_TOKEN_ID); // div
-                                          //
+
+  if (parser->token->type == HTML_TOKEN_DOCTYPE) {
+
+    html_parser_eat(parser, HTML_TOKEN_DOCTYPE);
+    ast->is_self_closing = 1;
+    ast->is_end = 1;
+    ast->is_comment = 1;
+    ast->is_doctype = 1;
+  } else {
+    html_parser_eat(parser, HTML_TOKEN_ID); // div
+  }
+
   collect_options(parser, ast, ast);
 
   if (parser->token->type == HTML_TOKEN_DIV) {
@@ -160,9 +170,12 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
     }
   }
 
-  if (ast->is_closed == 0 && ast->is_self_closing == 0) {
-
-    // left->sibling =  nextast;
+  if (ast->is_doctype) {
+    HTMLAST* document = init_html_ast(HTML_AST_COMPOUND);
+    document->value_str = strdup("root");
+    document->children = init_html_ast_list();
+    html_ast_list_append(document->children, html_parser_parse_expr(parser, parent));
+    return document;
   }
 
   return ast;
