@@ -256,8 +256,12 @@ char *html_element_to_string(HTMLNode *node, unsigned int skip_tags) {
       }
     }
 
+    if (node->is_self_closing)
+      html_str_append(&str, "/");
+
     html_str_append(&str, ">");
   }
+  html_str_append(&str, "\n");
 
   if (node->children) {
     char *childrenstr = html_list_to_string(node->children, skip_tags);
@@ -278,6 +282,8 @@ char *html_element_to_string(HTMLNode *node, unsigned int skip_tags) {
     }
   }
 
+  html_str_append(&str, "\n");
+
   return str ? str : strdup("");
 }
 
@@ -287,13 +293,13 @@ char *_html_str_to_string(HTMLNode *node, unsigned int skip_tags) {
 
 char *html_str_to_string(HTMLNode *node, unsigned int skip_tags) {
   char *s = 0;
-  html_str_append(&s, "\"");
+  html_str_append_char(&s, node->c);
   char *value = node->value_str ? strdup(node->value_str) : strdup("");
   if (value) {
     html_str_append(&s, value);
     free(value);
   }
-  html_str_append(&s, "\"");
+  html_str_append_char(&s, node->c);
   return s;
 }
 char *html_number_to_string(HTMLNode *node, unsigned int skip_tags) {
@@ -357,6 +363,7 @@ char *html_to_string(HTMLNode *node, unsigned int skip_tags) {
   case HTML_AST_STR_ELEMENT:
     return html_str_element_to_string(node, skip_tags);
     break;
+  case HTML_AST_COMMENT:
   case HTML_AST_ID:
     return html_id_to_string(node, skip_tags);
     break;

@@ -36,6 +36,8 @@ typedef struct HTMLAST_STRUCT {
   unsigned int is_comment;
   unsigned int is_doctype;
   map_T* props;
+  unsigned int render_end;
+  char c;
 } HTMLAST;
 
 typedef struct HTMLASTLIST_STRUCT {

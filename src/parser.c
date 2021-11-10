@@ -1,8 +1,11 @@
 #include <html.h>
 #include <html_parser.h>
 #include <html_utils.h>
+#include <html_tags.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+const unsigned int ALLOW_COMPUTE = 1;
 
 HTMLParser *init_html_parser(HTMLLexer *lexer) {
   HTMLParser *parser = (HTMLParser *)calloc(1, sizeof(HTMLParser));
@@ -148,6 +151,11 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
   }
 
   html_parser_eat(parser, HTML_TOKEN_GT); // >
+                                          //
+  if (!ast->is_self_closing) {
+    ast->is_self_closing = html_is_self_closing(name);
+    ast->render_end = 1;
+  }
 
   if (!ast->is_end) {
 
@@ -222,7 +230,7 @@ HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
   if (parser->token->type == HTML_TOKEN_LT || parser->lexer->c == 0)
     return 0;
 
-  unsigned int allow_compute = 1;
+  unsigned int allow_compute = 1 && ALLOW_COMPUTE == 1;
   if (parent != 0 && parent->value_str != 0) {
     allow_compute = strcmp(parent->value_str, "style") != 0 && strcmp(parent->value_str, "script") != 0 && strcmp(parent->value_str, "pre") != 0;
   }
@@ -322,8 +330,10 @@ HTMLAST *html_parser_parse_number(HTMLParser *parser, HTMLAST *parent) {
 
 HTMLAST *html_parser_parse_string(HTMLParser *parser, HTMLAST *parent) {
   char *v = strdup(parser->token->value);
+  char c = parser->token->c;
   html_parser_eat(parser, HTML_TOKEN_STR);
   HTMLAST *ast = init_html_ast(HTML_AST_STR);
+  ast->c = c;
   ast->value_str = strdup(v);
   free(v);
   return ast;

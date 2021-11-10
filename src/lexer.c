@@ -82,8 +82,7 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
       return html_lexer_parse_string(lexer);
     default: {
       if (!LEXER_IS_DONE(lexer)) {
-        printf("(HTML) Lexer: Unexpected character `%c`\n", lexer->c);
-        exit(1);
+        LEXER_TOK(lexer, HTML_TOKEN_JUNK);
       }
     }
     }
@@ -110,7 +109,6 @@ HTMLToken *html_lexer_parse_id(HTMLLexer *lexer) {
 
 HTMLToken *html_lexer_parse_string(HTMLLexer *lexer) {
   char *s = 0;
-  ;
 
   char delim = lexer->c;
   html_lexer_advance(lexer);
@@ -121,6 +119,7 @@ HTMLToken *html_lexer_parse_string(HTMLLexer *lexer) {
   }
 
   HTMLToken *tok = init_html_token(HTML_TOKEN_STR, s);
+  tok->c = delim;
 
   free(s);
   html_lexer_advance(lexer);
