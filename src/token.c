@@ -44,4 +44,6 @@ const char* html_token_to_string(int type) {
    case HTML_TOKEN_DOT: return "HTML_TOKEN_DOT";
    case HTML_TOKEN_JUNK: return "HTML_TOKEN_JUNK";
   }
+
+  return "HTML_TOKEN_UNKNOWN";
 }

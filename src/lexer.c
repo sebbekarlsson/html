@@ -176,13 +176,52 @@ HTMLToken *html_lexer_parse_comment(HTMLLexer *lexer) {
   return tok;
 }
 
-HTMLToken *html_lexer_parse_string_until(HTMLLexer *lexer, char c, char b, unsigned int allow_compute) {
+
+static void next_word(HTMLLexer* lexer, uint32_t len, char* dest) {
+  char* str = 0;
+  uint32_t i = lexer->i;
+  char c = lexer->src[i];
+
+
+  while (i < lexer->i + len && i < lexer->length) {
+    c = lexer->src[i];
+
+    while (c == ' ' || c == '\t' || c == '\n') {
+      c = lexer->src[i];
+      i++;
+    }
+
+    html_str_append_char(&str, c);
+
+    i++;
+  }
+
+
+  if (str != 0) {
+    sprintf(dest, "%s", str);
+    free(str);
+  }
+
+}
+
+HTMLToken *html_lexer_parse_string_until(HTMLLexer *lexer, unsigned int allow_compute, char* word, char c) {
   char *s = 0;
+
+  uint32_t wordlen = strlen(word);
 
   char delim = c;
   int type = HTML_TOKEN_STR;
+  char tmp[256];
 
-  while (lexer->c != delim && lexer->c != b && !(LEXER_IS_DONE(lexer))) {
+  while ((word ? strcmp(tmp, word) : 1) != 0 && lexer->c != delim && !(LEXER_IS_DONE(lexer))) {
+
+    if (word) {
+      next_word(lexer, wordlen, tmp);
+
+      if (strcmp(word, tmp) == 0) {
+        break;
+      }
+    }
     if (lexer->c == '{' && allow_compute) {
       type = HTML_TOKEN_COMPUTE;
     }

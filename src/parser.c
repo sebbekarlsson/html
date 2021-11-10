@@ -24,6 +24,7 @@ void html_parser_free(HTMLParser *parser) {
 }
 
 void html_parser_eat(HTMLParser *parser, int token_type) {
+
   if (parser->token->type != token_type) {
     char tmp[256];
     html_lexer_get_lineinfostr(parser->lexer, tmp);
@@ -228,6 +229,7 @@ HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent) {
   return ast;
 }
 
+#include <string.h>
 HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
   if (parser->token->type == HTML_TOKEN_LT || parser->lexer->c == 0)
     return 0;
@@ -237,7 +239,18 @@ HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
     allow_compute = strcmp(parent->value_str, "style") != 0 && strcmp(parent->value_str, "script") != 0 && strcmp(parent->value_str, "pre") != 0;
   }
 
-  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, '<', allow_compute ? '{' : 0, allow_compute);
+  const char* template = "</%s>";
+
+  char* buff1 = 0;
+
+  if (parent->value_str && strlen(parent->value_str) < 256) {
+    buff1 = (char*)calloc(strlen(template) + 1 + (parent->value_str ? strlen(parent->value_str) : 1) + 1, sizeof(char));
+    sprintf(buff1, template, parent->value_str ? parent->value_str : "");
+  }
+
+  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, allow_compute, buff1, buff1 ? 0 : '<');
+
+  if (buff1 != 0) free(buff1);
   char *buff = strdup(parser->token->value);
   html_str_append(&buff, tok->value);
 
