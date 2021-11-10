@@ -25,6 +25,8 @@ typedef struct {
   char c;
 } HTMLToken;
 
+const char* html_token_to_string(int type);
+
 HTMLToken *init_html_token(int type, char *value);
 
 void html_token_free(HTMLToken *token);

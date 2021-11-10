@@ -7,6 +7,8 @@ typedef struct {
   uint32_t i;
   char c;
   uint32_t length;
+  unsigned int line;
+  unsigned int column;
 } HTMLLexer;
 
 HTMLLexer *init_html_lexer(char *src);
@@ -28,6 +30,8 @@ HTMLToken *html_lexer_parse_number(HTMLLexer *lexer);
 char html_lexer_peek(HTMLLexer *lexer, int i);
 
 void html_lexer_skip_whitespace(HTMLLexer *lexer);
+
+void html_lexer_get_lineinfostr(HTMLLexer* lexer, char* dest);
 
 HTMLToken *html_lexer_parse_comment(HTMLLexer *lexer);
 #endif

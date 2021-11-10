@@ -25,6 +25,8 @@ HTMLLexer *init_html_lexer(char *src) {
   lexer->i = 0;
   lexer->c = lexer->src[lexer->i];
   lexer->length = strlen(src);
+  lexer->line = 1;
+  lexer->column = 0;
 
   return lexer;
 }
@@ -41,6 +43,14 @@ void html_lexer_advance(HTMLLexer *lexer) {
   if (!LEXER_IS_DONE(lexer)) {
     lexer->i += 1;
     lexer->c = lexer->src[lexer->i];
+
+    if (lexer->c == '\n') {
+      lexer->line += 1;
+      lexer->column = 0;
+    } else {
+      lexer->column += 1;
+    }
+
   }
 }
 
@@ -98,6 +108,16 @@ HTMLToken *html_lexer_parse_id(HTMLLexer *lexer) {
          !(LEXER_IS_DONE(lexer))) {
     html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);
+  }
+
+  if (lexer->c == ':' && isalnum(html_lexer_peek(lexer, 1))) {
+    html_str_append_char(&s, lexer->c);
+    html_lexer_advance(lexer);
+    while ((isalnum(lexer->c) || lexer->c == '-' || lexer->c == '_') &&
+         !(LEXER_IS_DONE(lexer))) {
+    html_str_append_char(&s, lexer->c);
+    html_lexer_advance(lexer);
+  }
   }
 
   int type = HTML_TOKEN_ID;
@@ -209,4 +229,9 @@ void html_lexer_skip_whitespace(HTMLLexer *lexer) {
 
 char html_lexer_peek(HTMLLexer *lexer, int i) {
   return lexer->src[MIN(lexer->length, lexer->i + i)];
+}
+
+
+void html_lexer_get_lineinfostr(HTMLLexer* lexer, char* dest) {
+  sprintf(dest, "(%d:%d)", (int)lexer->line, (int)lexer->column);
 }

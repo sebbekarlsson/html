@@ -25,8 +25,10 @@ void html_parser_free(HTMLParser *parser) {
 
 void html_parser_eat(HTMLParser *parser, int token_type) {
   if (parser->token->type != token_type) {
-    printf("Parser: Unexpected token `%s` (%d), was expecting (%d)\n",
-           parser->token->value, parser->token->type, token_type);
+    char tmp[256];
+    html_lexer_get_lineinfostr(parser->lexer, tmp);
+    printf("Parser: Unexpected token `%s` (%s) (%d), was expecting (%d) (%s) [%s]\n",
+           parser->token->value, html_token_to_string(parser->token->type), parser->token->type, token_type, html_token_to_string(token_type), tmp);
     exit(1);
   } else {
     if (parser->token != 0) {
