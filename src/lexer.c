@@ -61,7 +61,7 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
     if (isdigit(lexer->c))
       return html_lexer_parse_number(lexer);
 
-    if (isalnum(lexer->c))
+    if (isalnum(lexer->c) || lexer->c == '@' || lexer->c == ':')
       return html_lexer_parse_id(lexer);
 
     if (lexer->c == '<' && html_lexer_peek(lexer, 1) == '!' && html_lexer_peek(lexer, 2) == '-' && html_lexer_peek(lexer, 3) == '-') {
@@ -104,7 +104,7 @@ HTMLToken *html_lexer_get_next_token(HTMLLexer *lexer) {
 HTMLToken *html_lexer_parse_id(HTMLLexer *lexer) {
   char *s = 0;
 
-  while ((isalnum(lexer->c) || lexer->c == '-' || lexer->c == '_') &&
+  while ((isalnum(lexer->c) || lexer->c == '-' || lexer->c == '_' || lexer->c == '@' || lexer->c == '.' || lexer->c == ':') &&
          !(LEXER_IS_DONE(lexer))) {
     html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);
@@ -113,7 +113,7 @@ HTMLToken *html_lexer_parse_id(HTMLLexer *lexer) {
   if (lexer->c == ':' && isalnum(html_lexer_peek(lexer, 1))) {
     html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);
-    while ((isalnum(lexer->c) || lexer->c == '-' || lexer->c == '_') &&
+    while ((isalnum(lexer->c) || lexer->c == '-' || lexer->c == '_' || lexer->c == '@' || lexer->c == '.' || lexer->c == ':') &&
          !(LEXER_IS_DONE(lexer))) {
     html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);

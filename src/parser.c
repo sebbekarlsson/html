@@ -271,6 +271,16 @@ HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
   return ast;
 }
 
+EHTMLUnit html_parser_parse_unit(HTMLParser* parser) {
+  char* v = parser->token->value;
+  html_parser_eat(parser, HTML_TOKEN_JUNK);
+  EHTMLUnit unit = HTML_UNIT_PX;
+
+  if (v && strcmp(v, "%") == 0) unit = HTML_UNIT_PERCENT;
+
+  return unit;
+}
+
 HTMLAST *html_parser_parse_factor(HTMLParser *parser, HTMLAST *parent) {
   HTMLAST *left = 0;
 
@@ -320,6 +330,11 @@ HTMLAST *html_parser_parse_factor(HTMLParser *parser, HTMLAST *parent) {
       }
     }*/
 
+
+  if (left && parser->token->type == HTML_TOKEN_JUNK) {
+    left->unit = html_parser_parse_unit(parser);
+  }
+
   return left;
 }
 
@@ -368,7 +383,12 @@ HTMLAST *html_parser_parse_assignment(HTMLParser *parser, HTMLAST *parent) {
   ast->left = html_parser_parse_id(parser, parent);
   if (parser->token->type == HTML_TOKEN_EQUALS) {
     html_parser_eat(parser, HTML_TOKEN_EQUALS);
-    ast->right = html_parser_parse_factor(parser, parent);
+
+    if (parser->token->type == HTML_TOKEN_ID) {
+      ast->right = html_parser_parse_id(parser, parent);
+    } else {
+      ast->right = html_parser_parse_factor(parser, parent);
+    }
   }
 
   return ast;

@@ -3,6 +3,11 @@
 #include <stdint.h>
 #include <hashmap/map.h>
 
+typedef enum  {
+HTML_UNIT_PERCENT,
+HTML_UNIT_PX,
+} EHTMLUnit;
+
 typedef struct HTMLAST_STRUCT {
   enum {
     HTML_AST_ELEMENT,
@@ -37,6 +42,7 @@ typedef struct HTMLAST_STRUCT {
   unsigned int is_doctype;
   map_T* props;
   unsigned int render_end;
+  EHTMLUnit unit;
   char c;
 } HTMLAST;
 
