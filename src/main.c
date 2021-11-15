@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
   char *contents = read_file(argv[1]);
   HTMLNode *root = html(contents);
 
-  char *rootstr = html_to_string(root, 0);
+  char *rootstr = html_to_string(root, 0, 0);
 
   html_get_propvalue_str(root, "lang");
 

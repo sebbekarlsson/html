@@ -107,7 +107,7 @@ char *html_get_propvalue_str(HTMLNode *node, char *propname) {
   }
 
   if (strcmp(propname, "innerText") == 0) {
-    return html_to_string(node, 1);
+    return html_to_string(node, 1, 0);
   }
 
   return 0;
@@ -195,7 +195,16 @@ void html_set_propvalue_number(HTMLNode *node, char *propname, float value) {
   map_set(node->props, propname, right);
 }
 
-char *html_options_to_string(HTMLASTList *options, unsigned int skip_tags) {
+char* generate_indent(unsigned int n) {
+  if (n == 0) return strdup("");
+  unsigned int t = n > 0 ? n : 1;
+  char* buff = (char*)calloc(t + 1, sizeof(char*));
+
+  memset(buff, '\t', n);
+  return buff;
+}
+
+char *html_options_to_string(HTMLASTList *options, unsigned int skip_tags, unsigned int indent) {
   if (!options || (options && (options->items == 0 || options->length <= 0)))
     return strdup("");
 
@@ -203,7 +212,7 @@ char *html_options_to_string(HTMLASTList *options, unsigned int skip_tags) {
 
   for (uint32_t i = 0; i < options->length; i++) {
     HTMLNode *opt = options->items[i];
-    char *optstr = html_to_string(opt, skip_tags);
+    char *optstr = html_to_string(opt, skip_tags, indent);
 
     if (optstr) {
       html_str_append(&str, optstr);
@@ -218,7 +227,7 @@ char *html_options_to_string(HTMLASTList *options, unsigned int skip_tags) {
   return str ? str : strdup("");
 }
 
-char *html_list_to_string(HTMLASTList *list, unsigned int skip_tags) {
+char *html_list_to_string(HTMLASTList *list, unsigned int skip_tags, unsigned int indent) {
   HTMLASTList *children = list;
   if (!children ||
       (children && (children->items == 0 || children->length <= 0)))
@@ -228,7 +237,7 @@ char *html_list_to_string(HTMLASTList *list, unsigned int skip_tags) {
 
   for (uint32_t i = 0; i < children->length; i++) {
     HTMLNode *child = children->items[i];
-    char *childstr = html_to_string(child, skip_tags);
+    char *childstr = html_to_string(child, skip_tags, indent);
 
     if (childstr) {
       html_str_append(&str, childstr);
@@ -239,16 +248,20 @@ char *html_list_to_string(HTMLASTList *list, unsigned int skip_tags) {
   return str ? str : strdup("");
 }
 
-char *html_element_to_string(HTMLNode *node, unsigned int skip_tags) {
+char *html_element_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
   char *str = 0;
 
+  char* indentstr = generate_indent(indent);
+  html_str_append(&str, indentstr);
+
+    html_str_append(&str, "HTML(");
   if (skip_tags == 0) {
     html_str_append(&str, "<");
     if (node->value_str) {
       html_str_append(&str, node->value_str);
     }
     if (node->options && node->options->length) {
-      char *optionstr = html_options_to_string(node->options, skip_tags);
+      char *optionstr = html_options_to_string(node->options, skip_tags, 0);
       if (optionstr) {
         html_str_append(&str, " ");
         html_str_append(&str, optionstr);
@@ -261,10 +274,10 @@ char *html_element_to_string(HTMLNode *node, unsigned int skip_tags) {
 
     html_str_append(&str, ">");
   }
-  html_str_append(&str, "\n");
+  //html_str_append(&str, "\n");
 
   if (node->children) {
-    char *childrenstr = html_list_to_string(node->children, skip_tags);
+    char *childrenstr = html_list_to_string(node->children, skip_tags, indent+1);
     if (childrenstr) {
       html_str_append(&str, childrenstr);
       free(childrenstr);
@@ -282,16 +295,19 @@ char *html_element_to_string(HTMLNode *node, unsigned int skip_tags) {
     }
   }
 
+  html_str_append(&str, ")");
+
   html_str_append(&str, "\n");
+  free(indentstr);
 
   return str ? str : strdup("");
 }
 
-char *_html_str_to_string(HTMLNode *node, unsigned int skip_tags) {
+char *_html_str_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
   return node->value_str ? strdup(node->value_str) : strdup("");
 }
 
-char *html_str_to_string(HTMLNode *node, unsigned int skip_tags) {
+char *html_str_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
   char *s = 0;
   html_str_append_char(&s, node->c);
   char *value = node->value_str ? strdup(node->value_str) : strdup("");
@@ -300,21 +316,22 @@ char *html_str_to_string(HTMLNode *node, unsigned int skip_tags) {
     free(value);
   }
   html_str_append_char(&s, node->c);
+
   return s;
 }
-char *html_number_to_string(HTMLNode *node, unsigned int skip_tags) {
+char *html_number_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
   char buff[256];
   sprintf(buff, "%1.2f", node->value_float);
   return strdup(buff);
 }
-char *html_compound_to_string(HTMLNode *node, unsigned int skip_tags) {
-  return html_list_to_string(node->children, skip_tags);
+char *html_compound_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
+  return html_list_to_string(node->children, skip_tags, indent);
 }
-char *html_assignment_to_string(HTMLNode *node, unsigned int skip_tags) {
+char *html_assignment_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
   char *str = 0;
 
   if (node->left) {
-    char *leftstr = html_to_string(node->left, skip_tags);
+    char *leftstr = html_to_string(node->left, skip_tags, 0);
     if (leftstr) {
       html_str_append(&str, leftstr);
       free(leftstr);
@@ -324,7 +341,7 @@ char *html_assignment_to_string(HTMLNode *node, unsigned int skip_tags) {
   if (node->right) {
     html_str_append(&str, "=");
 
-    char *rightstr = html_to_string(node->right, skip_tags);
+    char *rightstr = html_to_string(node->right, skip_tags, 0);
     if (rightstr) {
       html_str_append(&str, rightstr);
       free(rightstr);
@@ -333,39 +350,49 @@ char *html_assignment_to_string(HTMLNode *node, unsigned int skip_tags) {
 
   return str ? str : strdup("");
 }
-char *html_str_element_to_string(HTMLNode *node, unsigned int skip_tags) {
-  return _html_str_to_string(node, skip_tags);
+char *html_str_element_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
+  char* str = 0;
+  //char* indentstr = generate_indent(indent);
+ // html_str_append(&str, indentstr);
+  html_str_append(&str, "TEXT(");
+  char* innerstr =  _html_str_to_string(node, skip_tags, indent);
+  html_str_append(&str, innerstr);
+  html_str_append(&str, ")");
+
+  //free(indentstr);
+
+  return str;
 }
-char *html_id_to_string(HTMLNode *node, unsigned int skip_tags) {
-  return _html_str_to_string(node, skip_tags);
+char *html_id_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
+  return _html_str_to_string(node, skip_tags, 0);
 }
 
-char *html_to_string(HTMLNode *node, unsigned int skip_tags) {
+char *html_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
   if (!node)
     return strdup("");
 
   switch (node->type) {
   case HTML_AST_ELEMENT:
-    return html_element_to_string(node, skip_tags);
+    return html_element_to_string(node, skip_tags, indent);
     break;
   case HTML_AST_STR:
-    return html_str_to_string(node, skip_tags);
+    return html_str_to_string(node, skip_tags, indent);
     break;
   case HTML_AST_NUMBER:
-    return html_number_to_string(node, skip_tags);
+    return html_number_to_string(node, skip_tags, indent);
     break;
   case HTML_AST_COMPOUND:
-    return html_compound_to_string(node, skip_tags);
+    return html_compound_to_string(node, skip_tags, indent);
     break;
   case HTML_AST_ASSIGNMENT:
-    return html_assignment_to_string(node, skip_tags);
+    return html_assignment_to_string(node, skip_tags, 0);
     break;
   case HTML_AST_STR_ELEMENT:
-    return html_str_element_to_string(node, skip_tags);
+    return html_str_element_to_string(node, skip_tags, indent);
     break;
   case HTML_AST_COMMENT:
   case HTML_AST_ID:
-    return html_id_to_string(node, skip_tags);
+    return html_id_to_string(node, skip_tags, 0);
     break;
   default: { return strdup(""); }
   }

@@ -21,7 +21,7 @@ HTMLNode *html_get_value(HTMLNode *node, char *key);
 void html_set_propvalue_str(HTMLNode *node, char *propname, char *value);
 void html_set_propvalue_number(HTMLNode *node, char *propname, float value);
 
-char *html_to_string(HTMLNode *node, unsigned int skip_tags);
+char *html_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent);
 
 void html_free(HTMLNode *node);
 #ifdef __cplusplus
