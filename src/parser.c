@@ -248,7 +248,7 @@ HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
     sprintf(buff1, template, parent->value_str ? parent->value_str : "");
   }
 
-  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, allow_compute, buff1, '<');
+  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, allow_compute, buff1, buff1 ? 0 : '<');
 
   if (buff1 != 0) free(buff1);
   char *buff = strdup(parser->token->value);

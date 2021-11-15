@@ -251,10 +251,10 @@ char *html_list_to_string(HTMLASTList *list, unsigned int skip_tags, unsigned in
 char *html_element_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent) {
   char *str = 0;
 
-  char* indentstr = generate_indent(indent);
-  html_str_append(&str, indentstr);
+  //char* indentstr = generate_indent(indent);
+  //html_str_append(&str, indentstr);
 
-    html_str_append(&str, "HTML(");
+   // html_str_append(&str, "HTML(");
   if (skip_tags == 0) {
     html_str_append(&str, "<");
     if (node->value_str) {
@@ -295,10 +295,10 @@ char *html_element_to_string(HTMLNode *node, unsigned int skip_tags, unsigned in
     }
   }
 
-  html_str_append(&str, ")");
+  //html_str_append(&str, ")");
 
-  html_str_append(&str, "\n");
-  free(indentstr);
+  //html_str_append(&str, "\n");
+  //free(indentstr);
 
   return str ? str : strdup("");
 }
@@ -354,10 +354,10 @@ char *html_str_element_to_string(HTMLNode *node, unsigned int skip_tags, unsigne
   char* str = 0;
   //char* indentstr = generate_indent(indent);
  // html_str_append(&str, indentstr);
-  html_str_append(&str, "TEXT(");
+//  html_str_append(&str, "TEXT(");
   char* innerstr =  _html_str_to_string(node, skip_tags, indent);
   html_str_append(&str, innerstr);
-  html_str_append(&str, ")");
+ // html_str_append(&str, ")");
 
   //free(indentstr);
 
