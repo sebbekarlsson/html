@@ -1,6 +1,6 @@
-#include <HTMLAST.h>
-#include <html.h>
-#include <html_utils.h>
+#include <html/HTMLAST.h>
+#include <html/html.h>
+#include <html/html_utils.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

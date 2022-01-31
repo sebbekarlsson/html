@@ -1,5 +1,5 @@
 #include <string.h>
-#include <html_tags.h>
+#include <html/html_tags.h>
 
 const char* HTML_SELF_CLOSING_TAGS[] = {
 "area",

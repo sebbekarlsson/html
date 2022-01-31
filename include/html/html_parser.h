@@ -1,8 +1,8 @@
 #ifndef XHTML_PARSER_H
 #define XHTML_PARSER_H
-#include <HTMLAST.h>
-#include <html_lexer.h>
-#include <html_token.h>
+#include <html/HTMLAST.h>
+#include <html/html_lexer.h>
+#include <html/html_token.h>
 typedef struct {
   HTMLLexer *lexer;
   HTMLToken *token;

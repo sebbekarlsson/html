@@ -4,8 +4,8 @@
 extern "C" {
 #endif
 
-#include <html_lexer.h>
-#include <html_parser.h>
+#include <html/html_lexer.h>
+#include <html/html_parser.h>
 
 typedef struct HTMLAST_STRUCT HTMLNode;
 

@@ -1,6 +1,6 @@
 #ifndef XHTML_LEXER_H
 #define XHTML_LEXER_H
-#include <html_token.h>
+#include <html/html_token.h>
 #include <stdint.h>
 typedef struct {
   char *src;

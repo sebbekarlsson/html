@@ -1,4 +1,4 @@
-#include <HTMLAST.h>
+#include <html/HTMLAST.h>
 #include <stdlib.h>
 
 HTMLAST *init_html_ast(int type) {

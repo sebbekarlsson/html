@@ -1,7 +1,7 @@
-#include <html.h>
-#include <html_parser.h>
-#include <html_utils.h>
-#include <html_tags.h>
+#include <html/html.h>
+#include <html/html_parser.h>
+#include <html/html_utils.h>
+#include <html/html_tags.h>
 #include <stdio.h>
 #include <stdlib.h>
 

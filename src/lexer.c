@@ -1,6 +1,6 @@
 #include <ctype.h>
-#include <html_lexer.h>
-#include <html_utils.h>
+#include <html/html_lexer.h>
+#include <html/html_utils.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
