@@ -19,7 +19,9 @@ char *html_get_propvalue_str(HTMLNode *node, char *propname);
 HTMLNode *html_get_value(HTMLNode *node, char *key);
 
 void html_set_propvalue_str(HTMLNode *node, char *propname, char *value);
-void html_set_propvalue_number(HTMLNode *node, char *propname, float value);
+  void html_set_propvalue_number(HTMLNode *node, char *propname, float value);
+
+unsigned int html_is_text(HTMLNode* node);
 
 char *html_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent);
 

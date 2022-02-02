@@ -399,3 +399,8 @@ char *html_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent
 
   return strdup("");
 }
+
+
+unsigned int html_is_text(HTMLNode* node) {
+  return node->type == HTML_AST_STR || node->type == HTML_AST_STR_ELEMENT;
+}
