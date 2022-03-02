@@ -21,8 +21,9 @@ static char *read_file(char *filepath) {
 
 
 void test_text() {
+  HTMLOptions options = (HTMLOptions){ .xml_mode = 0 };
   char* src = read_file("assets/text.html");
-  HTMLNode* root = html(src);
+  HTMLNode* root = html(src, &options);
 
   ASSERT(root != 0);
   ASSERT(root->children->length == 2);
@@ -44,13 +45,26 @@ void test_text() {
 
   ASSERT(strcmp(txt, "Hello") == 0);
 
+  HTMLNode* last = (HTMLNode*)root->children->items[1];
+  ASSERT(last != 0);
+
+  ASSERT(last->children->length == 1);
+  HTMLNode* textnode2 = (HTMLNode*)last->children->items[0];
+
+  char* txt2 = textnode2->value_str;
+
+  ASSERT(txt2 != 0);
+
+  ASSERT(strcmp(txt2, "Click") == 0);
+
   html_free(root);
 }
 
 
 void test_example_org() {
+  HTMLOptions options = (HTMLOptions){ .xml_mode = 0 };
   char* src = read_file("assets/text.html");
-  HTMLNode* root = html(src);
+  HTMLNode* root = html(src, &options);
   ASSERT(root != 0);
   html_free(root);
 }

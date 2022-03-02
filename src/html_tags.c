@@ -24,9 +24,14 @@ const char* HTML_SELF_CLOSING_TAGS[] = {
 
 const int HTML_SELF_CLOSING_TAGS_LEN = 18;
 
-unsigned int html_is_self_closing(const char *tagname) {
+unsigned int html_is_self_closing(const char *tagname, HTMLOptions* options) {
+
+  if (options->xml_mode && strcmp(tagname, "source") == 0) {
+    return 0;
+  }
   for (int i = 0; i < HTML_SELF_CLOSING_TAGS_LEN; i++) {
     const char *tag = HTML_SELF_CLOSING_TAGS[i];
+
 
     if (strcmp(tag, tagname) == 0)
       return 1;

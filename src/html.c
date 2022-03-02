@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-HTMLNode *html(char *src) {
+HTMLNode *html(char *src, HTMLOptions* options) {
   HTMLLexer *lexer = init_html_lexer(src);
-  HTMLParser *parser = init_html_parser(lexer);
+  HTMLParser *parser = init_html_parser(lexer, options);
   HTMLNode *root = html_parser_parse(parser);
 
   html_lexer_free(lexer);
@@ -53,12 +53,20 @@ char **html_get_propnames(HTMLNode *node, int *len) {
 }
 
 float html_get_propvalue_number(HTMLNode *node, char *propname) {
-  if (!node || !propname || node->options == 0 || node->options->items == 0)
+  if (!node || !propname)
     return 0;
 
 
   HTMLNode* prop = (HTMLNode*) map_get_value(node->props, propname);
-  if (prop != 0) return prop->value_float;
+  if (prop != 0 && prop->value_float != 0) return prop->value_float;
+
+
+  char* strval = html_get_propvalue_str(node, propname);
+  if (strval) {
+    return atof(strval);
+  }
+
+  if (!node->options) return 0;
 
   for (int i = 0; i < node->options->length; i++) {
     HTMLNode *op = (HTMLNode *)node->options->items[i];
@@ -403,4 +411,52 @@ char *html_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent
 
 unsigned int html_is_text(HTMLNode* node) {
   return node->type == HTML_AST_STR || node->type == HTML_AST_STR_ELEMENT;
+}
+
+HTMLNode* html_find_tag_by_name(HTMLNode* html, const char* name) {
+  HTMLASTList *children = html->children;
+  if (!children) return 0;
+  char *str = 0;
+
+  for (uint32_t i = 0; i < children->length; i++) {
+    HTMLNode *child = children->items[i];
+    if (!child) continue;
+    if (!child->value_str) continue;
+    if (strcmp(child->value_str, name) == 0) return child;
+  }
+
+  return 0;
+}
+
+
+void html_find_tags_by_name(HTMLNode* html, const char* name, HTMLASTList* list) {
+    HTMLASTList *children = html->children;
+  char *str = 0;
+
+  HTMLNode** _nodes = 0;
+  uint32_t len = 0;
+
+  if (html->value_str && strcmp(html->value_str, name) == 0) {
+    html_ast_list_append(list, html);
+  }
+
+  if (html->child && html->child->value_str && strcmp(html->child->value_str, name) == 0) {
+    html_ast_list_append(list, html->child);
+  }
+
+  if (children) {
+    for (uint32_t i = 0; i < children->length; i++) {
+      HTMLNode *child = children->items[i];
+      if (!child) continue;
+      if (!child->value_str) continue;
+      if (strcmp(child->value_str, name) == 0) {
+        html_ast_list_append(list, child);
+      }
+
+      if (child->children) {
+        html_find_tags_by_name(child, name, list);
+      }
+    }
+  }
+
 }

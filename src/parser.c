@@ -7,11 +7,12 @@
 
 const unsigned int ALLOW_COMPUTE = 1;
 
-HTMLParser *init_html_parser(HTMLLexer *lexer) {
+HTMLParser *init_html_parser(HTMLLexer *lexer, HTMLOptions* options) {
   HTMLParser *parser = (HTMLParser *)calloc(1, sizeof(HTMLParser));
   parser->lexer = lexer;
   parser->token = html_lexer_get_next_token(lexer);
   parser->parent = 0;
+  parser->options = options;
 
   return parser;
 }
@@ -156,7 +157,7 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
   html_parser_eat(parser, HTML_TOKEN_GT); // >
                                           //
   if (!ast->is_self_closing) {
-    ast->is_self_closing = html_is_self_closing(name);
+    ast->is_self_closing = html_is_self_closing(name, parser->options);
     ast->render_end = 1;
   }
 
@@ -248,7 +249,7 @@ HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
     sprintf(buff1, template, parent->value_str ? parent->value_str : "");
   }
 
-  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, allow_compute, buff1, buff1 ? 0 : '<');
+  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, allow_compute, buff1, '<');
 
   if (buff1 != 0) free(buff1);
   char *buff = strdup(parser->token->value);

@@ -3,13 +3,16 @@
 #include <html/HTMLAST.h>
 #include <html/html_lexer.h>
 #include <html/html_token.h>
+#include <html/html_options.h>
+
 typedef struct {
   HTMLLexer *lexer;
   HTMLToken *token;
   HTMLAST *parent;
+  HTMLOptions* options;
 } HTMLParser;
 
-HTMLParser *init_html_parser(HTMLLexer *lexer);
+HTMLParser *init_html_parser(HTMLLexer *lexer, HTMLOptions* options);
 
 void html_parser_free(HTMLParser *parser);
 
