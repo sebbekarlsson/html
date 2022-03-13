@@ -212,6 +212,7 @@ HTMLToken *html_lexer_parse_string_until(HTMLLexer *lexer, unsigned int allow_co
   char delim = c;
   int type = HTML_TOKEN_STR;
   char tmp[256];
+  memset(&tmp[0], 256, sizeof(char));
 
   while ((word ? strcmp(tmp, word) : 1) != 0 && lexer->c != delim && !(LEXER_IS_DONE(lexer))) {
 
