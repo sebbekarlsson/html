@@ -10,6 +10,7 @@ typedef struct {
   HTMLToken *token;
   HTMLAST *parent;
   HTMLOptions* options;
+  unsigned int has_doctype;
 } HTMLParser;
 
 HTMLParser *init_html_parser(HTMLLexer *lexer, HTMLOptions* options);

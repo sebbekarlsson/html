@@ -1,5 +1,6 @@
 #include <html/HTMLAST.h>
 #include <stdlib.h>
+#include <string.h>
 
 HTMLAST *init_html_ast(int type) {
   HTMLAST *ast = (HTMLAST *)calloc(1, sizeof(HTMLAST));
@@ -105,4 +106,10 @@ void html_ast_list_clear_and_free_items(HTMLASTList *list) {
 
   free(list->items);
   list->length = 0;
+}
+
+HTMLAST *init_html_ast_with_name(int type, const char* name) {
+  HTMLAST* ast = init_html_ast(type);
+  ast->name = strdup(name);
+  ast->value_str = strdup(name);
 }

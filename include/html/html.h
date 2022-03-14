@@ -19,7 +19,9 @@ char *html_get_value_str(HTMLNode *node);
 char **html_get_propnames(HTMLNode *node, int *len);
 float html_get_propvalue_number(HTMLNode *node, char *propname);
 char *html_get_propvalue_str(HTMLNode *node, char *propname);
-HTMLNode *html_get_value(HTMLNode *node, char *key);
+  HTMLNode *html_get_value(HTMLNode *node, char *key);
+
+  const char* html_get_name(HTMLNode* node);
 
   HTMLNode* html_find_tag_by_name(HTMLNode* html, const char* name);
 

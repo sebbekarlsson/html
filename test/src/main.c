@@ -69,8 +69,43 @@ void test_example_org() {
   html_free(root);
 }
 
+void test_inner_text() {
+  HTMLOptions options = (HTMLOptions){ .xml_mode = 0 };
+  char* src = read_file("assets/innerText.html");
+  HTMLNode* root = html(src, &options);
+  ASSERT(root != 0);
+  HTMLNode* div = html_find_tag_by_name(root, "div");
+  ASSERT(div != 0);
+
+  char* innerText = html_get_propvalue_str(div, "innerText");
+
+  ASSERT(innerText != 0);
+
+  ASSERT(strcmp(innerText, "Hello") == 0);
+
+  html_free(root);
+}
+
+void test_props() {
+  HTMLOptions options = (HTMLOptions){ .xml_mode = 0 };
+  char* src = read_file("assets/props.html");
+  HTMLNode* root = html(src, &options);
+  ASSERT(root != 0);
+  HTMLNode* img = html_find_tag_by_name(root, "img");
+  ASSERT(img != 0);
+
+  char* img_src = html_get_propvalue_str(img, "src");
+  ASSERT(img_src != 0);
+
+  ASSERT(strcmp(img_src, "myimage.png") == 0);
+
+  html_free(root);
+}
+
 int main(int argc, char* argv[]) {
   test_text();
   test_example_org();
+  test_inner_text();
+  test_props();
   return 0;
 }

@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef MAX
+#define MAX(a, b) (a > b ? a : b)
+#endif
+
 const unsigned int ALLOW_COMPUTE = 1;
 
 HTMLParser *init_html_parser(HTMLLexer *lexer, HTMLOptions* options) {
@@ -88,125 +92,152 @@ HTMLAST* html_parser_parse_comment(HTMLParser* parser, HTMLAST* parent) {
   return ast;
 }
 
-HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
 
-  if (parser->token->type == HTML_TOKEN_COMMENT) {
-    return html_parser_parse_comment(parser, parent);
-  }
-  if (parser->token->type != HTML_TOKEN_EOF &&
-      parser->token->type != HTML_TOKEN_LT &&
-      parser->token->type != HTML_TOKEN_GT) {
-    return html_parser_parse_raw(parser, parent);
+void _html_parser_parse_end_tag(HTMLParser *parser, HTMLAST *parent) {
+  html_parser_eat(parser, HTML_TOKEN_LT); // <
+  html_parser_eat(parser, HTML_TOKEN_DIV); // /
+  html_parser_eat(parser, HTML_TOKEN_ID); // span
+  html_parser_eat(parser, HTML_TOKEN_GT); // >
+}
+
+HTMLToken* html_parser_simulate_next_token(HTMLParser* parser, int type) {
+  uint32_t offset = 0;
+  char* buffer = &parser->lexer->src[MAX(0, parser->lexer->i)];
+  if (!buffer) return 0;
+
+  HTMLLexer lexer = (HTMLLexer){0};
+  lexer.src = strdup(parser->lexer->src);
+  lexer.length = parser->lexer->length;
+  lexer.c = parser->lexer->c;
+  lexer.i = parser->lexer->i;
+  HTMLToken* token  = html_lexer_get_next_token(&lexer);
+
+  while (token != 0 && token->type != HTML_TOKEN_EOF) {
+    if (token->type == type) {
+      break;
+    } else {
+      html_token_free(token);
+      token = html_lexer_get_next_token(&lexer);
+    }
+
   }
 
-  if (parser->token->type != HTML_TOKEN_LT)
+  if (token->type != type) {
+    free(lexer.src);
+    html_token_free(token);
     return 0;
-  HTMLAST *ast = init_html_ast(HTML_AST_ELEMENT);
+  }
+
+  free(lexer.src);
+
+  return token;
+}
+
+unsigned int html_parser_seek_string(HTMLParser* parser, const char* word) {
+  if (parser->lexer->i >= parser->lexer->length) return 0;
+  uint32_t i = parser->lexer->i;
+  char* buffer = &parser->lexer->src[i];
+  if (!buffer) return 0;
+
+  uint32_t wordlen = strlen(word);
+  uint32_t bufflen = wordlen+1;
+
+  while ((i+wordlen) < parser->lexer->length) {
+    char tmp[bufflen];
+    memset(&tmp[0], 0, bufflen*sizeof(char));
+    memcpy(&tmp[0], &buffer[i], wordlen*sizeof(char));
+
+    if (str_fuzzy_compare(tmp, word)) {
+      return 1;
+    }
+
+    i++;
+  }
+
+  return 0;
+}
+
+HTMLAST *html_parser_parse_doctype(HTMLParser *parser, HTMLAST *parent) {
+  HTMLAST* ast = init_html_ast(HTML_AST_ELEMENT);
+
+  ast->is_doctype = 1;
+  ast->is_self_closing = 1;
+  html_parser_eat(parser, HTML_TOKEN_LT); // <
+  html_parser_eat(parser,  HTML_TOKEN_EXCL); // !
+  ast->name = strdup(parser->token->value); // doctype
+  ast->value_str = strdup(parser->token->value); // doctype
+  html_parser_eat(parser, HTML_TOKEN_DOCTYPE);
+  collect_options(parser, ast, ast); // ...options
+  html_parser_eat(parser, HTML_TOKEN_GT); // >
+  return ast;
+}
+
+HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
+  HTMLAST* doctype = 0;
+  if (parser->has_doctype == 0 && html_parser_seek_string(parser, "doctype")) {
+    doctype = html_parser_parse_doctype(parser, parent);
+    parser->has_doctype = 1;
+  }
+  HTMLAST* ast = init_html_ast(HTML_AST_ELEMENT);
+  ast->doctype = doctype;
+  if (parent && parent->children != 0)  {
+    html_ast_list_append(parent->children, ast);
+  }
   ast->children = init_html_ast_list();
 
+  if (parser->token->type != HTML_TOKEN_LT) {
+    return doctype ? doctype : init_html_ast_with_name(HTML_AST_ELEMENT, "doctype");
+  }
+
+
   html_parser_eat(parser, HTML_TOKEN_LT); // <
-  if (parser->token->type == HTML_TOKEN_DIV) {
-    html_parser_eat(parser, HTML_TOKEN_DIV); // /
-    ast->is_end = 1;
-  } else {
-    ast->parent = parent;
-  }
+  ast->name = strdup(parser->token->value); // span
+  ast->value_str = strdup(ast->name);
+  html_parser_eat(parser, HTML_TOKEN_ID);
+  collect_options(parser, ast, ast); // ...options
 
-  char *extra = 0;
-  if (parser->token->type == HTML_TOKEN_EXCL && parser->token->value) {
-    extra = strdup(parser->token->value);
-    html_parser_eat(parser, HTML_TOKEN_EXCL);
-  }
-  char *name = 0;
-  if (extra) {
-    html_str_append(&name, extra);
-    free(extra);
-  }
-  if (parser->token->value) {
-    html_str_append(&name, parser->token->value);
-  }
-  ast->value_str = name;
 
-  if (parser->token->type == HTML_TOKEN_DOCTYPE || parser->token->type == HTML_TOKEN_COMMENT) {
-
-    if (parser->token->type == HTML_TOKEN_COMMENT) {
-
-    html_parser_eat(parser, HTML_TOKEN_COMMENT);
-    } else {
-      html_parser_eat(parser, HTML_TOKEN_DOCTYPE);
-    }
-    ast->is_self_closing = 1;
-    ast->is_end = 1;
-    ast->is_comment = 1;
-    ast->is_doctype = 1;
-  } else {
-    html_parser_eat(parser, HTML_TOKEN_ID); // div
-  }
-
-  collect_options(parser, ast, ast);
-
-  if (parser->token->type == HTML_TOKEN_DIV) {
-    ast->is_self_closing = 1;
+    // we're self-closing
+  if (parser->token->type == HTML_TOKEN_DIV) {  // />
     html_parser_eat(parser, HTML_TOKEN_DIV);
+    html_parser_eat(parser, HTML_TOKEN_GT);
+    ast->is_self_closing = 1;
+    return ast;
   }
 
-  while (parser->token->type == HTML_TOKEN_COMMA) {
-    html_parser_eat(parser, HTML_TOKEN_COMMA);
+  // we're self-closing
+  if (html_is_self_closing(ast->name, parser->options)) {
+    html_parser_eat(parser, HTML_TOKEN_GT);
+    ast->is_self_closing = 1;
+    return ast;
   }
+
+
 
   html_parser_eat(parser, HTML_TOKEN_GT); // >
-                                          //
-  if (!ast->is_self_closing) {
-    ast->is_self_closing = html_is_self_closing(name, parser->options);
-    ast->render_end = 1;
+
+  while (parser->token->type != HTML_TOKEN_LT) {
+    HTMLAST* text_ast = html_parser_parse_raw(parser, parent);
+    html_ast_list_append(ast->children, text_ast);
   }
 
-  if (!ast->is_end) {
-
-    if (!ast->is_self_closing) {
-      HTMLAST *child = html_parser_parse_element(parser, ast);
-
-      if (child) {
-        HTMLASTList *trash = init_html_ast_list();
-        if (child->type != HTML_AST_STR &&
-            child->type != HTML_AST_STR_ELEMENT) {
-
-          if (child->parent == 0) {
-            html_ast_list_append(trash, child);
-          }
-          char *child_name = html_get_value_str(child);
-          while (name && child && child_name &&
-                 !(child->is_end && strcmp(name, child_name) == 0)) {
-
-            child = html_parser_parse_element(parser, ast);
-            child_name = html_get_value_str(child);
-
-            if (child && child->parent == 0) {
-              html_ast_list_append(trash, child);
-            }
-          }
-
-        } else {
-          if (!ast->children)
-            ast->children = init_html_ast_list();
-          html_ast_list_append(ast->children, child);
-        }
-
-        html_ast_list_free(trash);
-      }
+  while (parser->token->type == HTML_TOKEN_LT) {
+    HTMLToken* next_token = html_parser_simulate_next_token(parser, HTML_TOKEN_ID);
+    if (next_token && next_token->value && strcmp(next_token->value,  ast->name) == 0) {
+      break;
     }
-    if (parent && parent != ast) {
-      if (!parent->children)
-        parent->children = init_html_ast_list();
-      html_ast_list_append(parent->children, ast);
-    }
+
+    HTMLAST* child = html_parser_parse_element(parser, ast);
   }
 
-  if (ast->is_doctype) {
-    HTMLAST* next = html_parser_parse_expr(parser, parent);
-    next->head = ast;
-    return next;
+
+  while (parser->token->type != HTML_TOKEN_LT) {
+    HTMLAST* text_ast = html_parser_parse_raw(parser, parent);
+    html_ast_list_append(ast->children, text_ast);
   }
+
+  _html_parser_parse_end_tag(parser, parent);
+
 
   return ast;
 }
@@ -244,7 +275,7 @@ HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
 
   char* buff1 = 0;
 
-  if (parent->value_str && strlen(parent->value_str) < 256) {
+  if (parent != 0 && parent->value_str && strlen(parent->value_str) < 256) {
     buff1 = (char*)calloc(strlen(template) + 1 + (parent->value_str ? strlen(parent->value_str) : 1) + 1, sizeof(char));
     sprintf(buff1, template, parent->value_str ? parent->value_str : "");
   }

@@ -18,14 +18,17 @@ typedef struct HTMLAST_STRUCT {
     HTML_AST_COMMENT,
     HTML_AST_STR_ELEMENT,
     HTML_AST_ID,
-    HTML_AST_COMPUTE
+    HTML_AST_COMPUTE,
+    HTML_AST_DOCTYPE
   } type;
 
   float value_float;
+  char* name;
   char *value_str;
 
   struct HTMLASTLIST_STRUCT *options;
   struct HTMLASTLIST_STRUCT *children;
+  struct HTMLAST_STRUCT *doctype;
   struct HTMLAST_STRUCT *child;
   struct HTMLAST_STRUCT *left;
   struct HTMLAST_STRUCT *right;
@@ -52,6 +55,7 @@ typedef struct HTMLASTLIST_STRUCT {
 } HTMLASTList;
 
 HTMLAST *init_html_ast(int type);
+HTMLAST *init_html_ast_with_name(int type, const char* name);
 
 void html_ast_free(HTMLAST *ast);
 

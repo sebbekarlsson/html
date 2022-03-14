@@ -26,23 +26,7 @@ int main(int argc, char *argv[]) {
   char *contents = read_file(argv[1]);
   HTMLNode *root = html(contents, &options);
 
-  //printf("%s\n", html_to_string(root, 0, 0));
-
-  HTMLNode* collada = html_find_tag_by_name(root, "COLLADA");
-  if (!collada) return 0;
-
-  HTMLASTList list = {0};
-  html_find_tags_by_name(collada, "float_array", &list);
-
-
-  for (uint32_t i = 0; i < list.length; i++) {
-    HTMLNode* arr_node = list.items[i];
-
-    float count = html_get_propvalue_number(arr_node, "count");
-    printf("%12.6f\n", count);
-
-
-  }
+  printf("%s\n", html_to_string(root, 0, 1));
 
   //  deep(root, 0);
 

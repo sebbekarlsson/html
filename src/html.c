@@ -408,12 +408,22 @@ char *html_to_string(HTMLNode *node, unsigned int skip_tags, unsigned int indent
   return strdup("");
 }
 
+const char* html_get_name(HTMLNode* node) {
+  if (!node) return 0;
+  if (node->name) return node->name;
+  return node->value_str;
+}
 
 unsigned int html_is_text(HTMLNode* node) {
   return node->type == HTML_AST_STR || node->type == HTML_AST_STR_ELEMENT;
 }
 
 HTMLNode* html_find_tag_by_name(HTMLNode* html, const char* name) {
+  if (!html) return 0;
+
+  const char* my_name = html_get_name(html);
+  if (name && strcmp(my_name, name) == 0) return html;
+
   HTMLASTList *children = html->children;
   if (!children) return 0;
   char *str = 0;
