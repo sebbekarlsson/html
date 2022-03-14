@@ -9,6 +9,10 @@
 #define MAX(a, b) (a > b ? a : b)
 #endif
 
+#ifndef MIN
+#define MIN(a, b) (a < b ? a : b)
+#endif
+
 const unsigned int ALLOW_COMPUTE = 1;
 
 HTMLParser *init_html_parser(HTMLLexer *lexer, HTMLOptions* options) {
@@ -133,6 +137,31 @@ HTMLToken* html_parser_simulate_next_token(HTMLParser* parser, int type) {
   return token;
 }
 
+unsigned int html_parser_next_tag(HTMLParser* parser, const char* word) {
+  if (parser->lexer->i >= parser->lexer->length) return 0;
+  uint32_t i = parser->lexer->i;
+  char* buffer = &parser->lexer->src[i];
+  if (!buffer) return 0;
+
+  uint32_t wordlen = strlen(word);
+  uint32_t bufflen = wordlen+1;
+
+  while ((i+wordlen) < parser->lexer->length) {
+    char c = buffer[i];
+    char c2 = buffer[MIN(i+1, parser->lexer->length-1)];
+    if (c == '<' && c2 == '/') {
+      i+=2;
+      char tmp[bufflen];
+      memset(&tmp[0], 0, bufflen*sizeof(char));
+      memcpy(&tmp[0], &buffer[i], wordlen*sizeof(char));
+      if (strcmp(tmp, word) == 0) return 1;
+    }
+    i++;
+  }
+
+  return 0;
+}
+
 unsigned int html_parser_seek_string(HTMLParser* parser, const char* word) {
   if (parser->lexer->i >= parser->lexer->length) return 0;
   uint32_t i = parser->lexer->i;
@@ -216,27 +245,25 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
 
   html_parser_eat(parser, HTML_TOKEN_GT); // >
 
-  while (parser->token->type != HTML_TOKEN_LT) {
-    HTMLAST* text_ast = html_parser_parse_raw(parser, parent);
+  while (parser->token->type != HTML_TOKEN_LT && parser->token->type != HTML_TOKEN_EOF) {
+    HTMLAST* text_ast = html_parser_parse_raw(parser, ast);
     html_ast_list_append(ast->children, text_ast);
   }
 
-  while (parser->token->type == HTML_TOKEN_LT) {
-    HTMLToken* next_token = html_parser_simulate_next_token(parser, HTML_TOKEN_ID);
-    if (next_token && next_token->value && strcmp(next_token->value,  ast->name) == 0) {
-      break;
-    }
+  while (parser->token->type == HTML_TOKEN_LT && parser->lexer->c != '/') {
 
     HTMLAST* child = html_parser_parse_element(parser, ast);
   }
 
 
-  while (parser->token->type != HTML_TOKEN_LT) {
-    HTMLAST* text_ast = html_parser_parse_raw(parser, parent);
+  while (parser->token->type != HTML_TOKEN_LT  && parser->token->type != HTML_TOKEN_EOF) {
+    HTMLAST* text_ast = html_parser_parse_raw(parser, ast);
     html_ast_list_append(ast->children, text_ast);
   }
 
-  _html_parser_parse_end_tag(parser, parent);
+  if (parser->token->type == HTML_TOKEN_LT) {
+    _html_parser_parse_end_tag(parser, parent);
+  }
 
 
   return ast;
@@ -251,6 +278,7 @@ HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent) {
     html_parser_eat(parser, HTML_TOKEN_STR);
   } else {
     html_parser_eat(parser, HTML_TOKEN_COMPUTE);
+    printf("haha\n");
     type = HTML_AST_COMPUTE;
   }
   HTMLAST *ast = init_html_ast(type);
@@ -263,12 +291,13 @@ HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent) {
 
 #include <string.h>
 HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
-  if (parser->token->type == HTML_TOKEN_LT || parser->lexer->c == 0)
-    return 0;
+//  if (parser->token->type == HTML_TOKEN_LT || parser->lexer->c == 0)
+  //  return 0;
 
-  unsigned int allow_compute = 1 && ALLOW_COMPUTE == 1;
+  unsigned int allow_compute = 0;//1 && ALLOW_COMPUTE == 1;
   if (parent != 0 && parent->value_str != 0) {
-    allow_compute = strcmp(parent->value_str, "style") != 0 && strcmp(parent->value_str, "script") != 0 && strcmp(parent->value_str, "pre") != 0;
+    const char* parent_name = html_get_name(parent);
+    allow_compute = strcmp(parent_name, "style") != 0 && strcmp(parent_name, "script") != 0 && strcmp(parent_name, "pre") != 0;
   }
 
   const char* template = "</%s>";
