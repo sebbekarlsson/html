@@ -278,7 +278,6 @@ HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent) {
     html_parser_eat(parser, HTML_TOKEN_STR);
   } else {
     html_parser_eat(parser, HTML_TOKEN_COMPUTE);
-    printf("haha\n");
     type = HTML_AST_COMPUTE;
   }
   HTMLAST *ast = init_html_ast(type);

@@ -214,7 +214,15 @@ HTMLToken *html_lexer_parse_string_until(HTMLLexer *lexer, unsigned int allow_co
   char tmp[256];
   memset(&tmp[0], 0, sizeof(char) * sizeof(char));
 
-  while ((word ? strcmp(tmp, word) : 1) != 0 && lexer->c != delim && !(LEXER_IS_DONE(lexer))) {
+  while ((word ? strcmp(tmp, word) : 1) != 0  && !(LEXER_IS_DONE(lexer))) {
+
+    while (lexer->c == '\\') {
+    html_str_append_char(&s, lexer->c);
+    html_lexer_advance(lexer);
+
+    //html_str_append_char(&s, lexer->c);
+    //html_lexer_advance(lexer);
+    }
 
     if (word) {
       next_word(lexer, wordlen, tmp);
