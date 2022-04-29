@@ -168,22 +168,8 @@ unsigned int html_parser_seek_string(HTMLParser* parser, const char* word) {
   char* buffer = &parser->lexer->src[i];
   if (!buffer) return 0;
 
-  uint32_t wordlen = strlen(word);
-  uint32_t bufflen = wordlen+1;
 
-  while ((i+wordlen) < parser->lexer->length) {
-    char tmp[bufflen];
-    memset(&tmp[0], 0, bufflen*sizeof(char));
-    memcpy(&tmp[0], &buffer[i], wordlen*sizeof(char));
-
-    if (str_fuzzy_compare(tmp, word)) {
-      return 1;
-    }
-
-    i++;
-  }
-
-  return 0;
+  return strstr(buffer, word) != 0;
 }
 
 HTMLAST *html_parser_parse_doctype(HTMLParser *parser, HTMLAST *parent) {
