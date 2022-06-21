@@ -32,6 +32,8 @@ HTMLAST *html_parser_parse_expr(HTMLParser *parser, HTMLAST *parent);
 HTMLAST *html_parser_parse_number(HTMLParser *parser, HTMLAST *parent);
 
 HTMLAST *html_parser_parse_string(HTMLParser *parser, HTMLAST *parent);
+HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent);
+
 HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent);
 
 HTMLAST *html_parser_parse_assignment(HTMLParser *parser, HTMLAST *parent);

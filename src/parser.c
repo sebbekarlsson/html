@@ -59,17 +59,25 @@ HTMLAST *html_parser_parse_compound(HTMLParser *parser, HTMLAST *parent) {
   ast->children = init_html_ast_list();
 
   while (parser->token->type != HTML_TOKEN_EOF) {
-    HTMLAST *child = 0;
+    HTMLAST *child = html_parser_parse(parser);
+
+    /*
     if (parser->token->type != HTML_TOKEN_LT) {
       child = html_parser_parse_raw(parser, parent);
+    } else if (parser->token->type == HTML_TOKEN_STR) {
+        child = html_parser_parse_string_element(parser, parent);
     } else {
       child = html_parser_parse_expr(parser, parent);
-    }
+    }*/
 
     if (child == 0)
       continue;
 
     html_ast_list_append(ast->children, child);
+  }
+
+  if (parent) {
+    html_ast_list_append(parent->children, ast);
   }
 
   return ast;
@@ -194,11 +202,14 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
     parser->has_doctype = 1;
   }
   HTMLAST* ast = init_html_ast(HTML_AST_ELEMENT);
+  ast->children = init_html_ast_list();
   ast->doctype = doctype;
-  if (parent && parent->children != 0)  {
+  if (parent)  {
+    if (!parent->children) parent->children = init_html_ast_list();
     html_ast_list_append(parent->children, ast);
   }
-  ast->children = init_html_ast_list();
+
+
 
   if (parser->token->type != HTML_TOKEN_LT) {
     return doctype ? doctype : init_html_ast_with_name(HTML_AST_ELEMENT, "doctype");
@@ -206,6 +217,7 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
 
 
   html_parser_eat(parser, HTML_TOKEN_LT); // <
+  //printf("yo %c\n", parser->lexer->c);
   ast->name = strdup(parser->token->value); // span
   ast->value_str = strdup(ast->name);
   html_parser_eat(parser, HTML_TOKEN_ID);
@@ -213,6 +225,7 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
 
 
     // we're self-closing
+
   if (parser->token->type == HTML_TOKEN_DIV) {  // />
     html_parser_eat(parser, HTML_TOKEN_DIV);
     html_parser_eat(parser, HTML_TOKEN_GT);
@@ -237,20 +250,23 @@ HTMLAST *html_parser_parse_element(HTMLParser *parser, HTMLAST *parent) {
   }
 
   while (parser->token->type == HTML_TOKEN_LT && parser->lexer->c != '/') {
-
     HTMLAST* child = html_parser_parse_element(parser, ast);
   }
-
 
   while (parser->token->type != HTML_TOKEN_LT  && parser->token->type != HTML_TOKEN_EOF) {
     HTMLAST* text_ast = html_parser_parse_raw(parser, ast);
     html_ast_list_append(ast->children, text_ast);
   }
 
-  if (parser->token->type == HTML_TOKEN_LT) {
+
+  if (parser->token->type == HTML_TOKEN_LT && html_lexer_seek(parser->lexer, '/') == 1) {
     _html_parser_parse_end_tag(parser, parent);
   }
 
+    while (parser->token->type != HTML_TOKEN_LT  && parser->token->type != HTML_TOKEN_EOF) {
+    HTMLAST* text_ast = html_parser_parse_raw(parser, ast);
+    html_ast_list_append(ast->children, text_ast);
+  }
 
   return ast;
 }
@@ -260,14 +276,11 @@ HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent) {
 
   int type = HTML_AST_STR_ELEMENT;
 
-  if (parser->token->type == HTML_TOKEN_STR) {
-    html_parser_eat(parser, HTML_TOKEN_STR);
-  } else {
-    html_parser_eat(parser, HTML_TOKEN_COMPUTE);
-    type = HTML_AST_COMPUTE;
-  }
+
+  html_parser_eat(parser, HTML_TOKEN_STR);
   HTMLAST *ast = init_html_ast(type);
   ast->value_str = strdup(v);
+//  printf("YTOOOOOOOOOOOOOOOOO %s\n", ast->value_str);
   free(v);
 
   // ast->sibling = html_parser_parse_factor(parser, parent);
@@ -276,44 +289,21 @@ HTMLAST *html_parser_parse_string_element(HTMLParser *parser, HTMLAST *parent) {
 
 #include <string.h>
 HTMLAST *html_parser_parse_raw(HTMLParser *parser, HTMLAST *parent) {
-//  if (parser->token->type == HTML_TOKEN_LT || parser->lexer->c == 0)
-  //  return 0;
+  char* buff = strdup(parser->token->value);
+  HTMLLexer* lexer = parser->lexer;
 
-  unsigned int allow_compute = 0;//1 && ALLOW_COMPUTE == 1;
-  if (parent != 0 && parent->value_str != 0) {
-    const char* parent_name = html_get_name(parent);
-    allow_compute = strcmp(parent_name, "style") != 0 && strcmp(parent_name, "script") != 0 && strcmp(parent_name, "pre") != 0;
+
+  while (lexer->c != '<' && lexer->c != 0) {
+    html_str_append_char(&buff, lexer->c);
+    html_lexer_advance(lexer);
   }
 
-  const char* template = "</%s>";
+  parser->token = html_lexer_get_next_token(lexer);
 
-  char* buff1 = 0;
+  HTMLAST* ast = init_html_ast(HTML_AST_STR_ELEMENT);
+  ast->value_str = buff;
 
-  if (parent != 0 && parent->value_str && strlen(parent->value_str) < 256) {
-    buff1 = (char*)calloc(strlen(template) + 1 + (parent->value_str ? strlen(parent->value_str) : 1) + 1, sizeof(char));
-    sprintf(buff1, template, parent->value_str ? parent->value_str : "");
-  }
 
-  HTMLToken *tok = html_lexer_parse_string_until(parser->lexer, allow_compute, buff1, '<');
-
-  if (buff1 != 0) free(buff1);
-  char *buff = strdup(parser->token->value);
-  html_str_append(&buff, tok->value);
-
-  if (tok->value) {
-    free(tok->value);
-    tok->value = 0;
-  }
-  tok->value = buff;
-
-  if (parser->token) {
-    html_token_free(parser->token);
-    parser->token = 0;
-  }
-
-  parser->token = tok;
-
-  HTMLAST *ast = html_parser_parse_string_element(parser, parent);
   return ast;
 }
 
@@ -332,11 +322,10 @@ HTMLAST *html_parser_parse_factor(HTMLParser *parser, HTMLAST *parent) {
 
 
   if (parser->token->type == HTML_TOKEN_LT) {
-    left = html_parser_parse_element(parser, parent);
+   left = html_parser_parse_element(parser, parent);
+    if (left) return left;
   }
 
-  if (left)
-    return left;
 
   HTMLAST *nextast = 0;
   // HTMLASTList *nextchildren = init_html_ast_list();
@@ -349,32 +338,13 @@ HTMLAST *html_parser_parse_factor(HTMLParser *parser, HTMLAST *parent) {
     nextast = html_parser_parse_number(parser, parent);
     break;
   default: {
-    if (parser->token->type != HTML_TOKEN_EOF &&
-        parser->token->type != HTML_TOKEN_LT) {
-      nextast = html_parser_parse_compound(parser, parent);
-    }
+   // if (parser->token->type != HTML_TOKEN_EOF) {
+   //   nextast = html_parser_parse_compound(parser, parent);
+   // }
   } break;
   }
 
   left = nextast;
-
-  /*
-    if (left != 0 && nextast != 0) {
-      if (left->is_closed || left->is_self_closing || left->is_complete) {
-        if (left->parent) {
-          if (left->parent->children == 0) {
-            left->parent->children = init_html_ast_list();
-          }
-          html_ast_list_append(left->parent->children,  nextast);
-        }
-        //left->sibling =  nextast;
-      } else {
-        if (left->children == 0) {
-          left->children = init_html_ast_list();
-        }
-        html_ast_list_append(left->children,  nextast);
-      }
-    }*/
 
 
   if (left && parser->token->type == HTML_TOKEN_JUNK) {

@@ -34,4 +34,9 @@ void html_lexer_skip_whitespace(HTMLLexer *lexer);
 void html_lexer_get_lineinfostr(HTMLLexer* lexer, char* dest);
 
 HTMLToken *html_lexer_parse_comment(HTMLLexer *lexer);
+
+int html_lexer_skip_n(HTMLLexer* lexer, int64_t n);
+
+
+int html_lexer_seek(HTMLLexer* lexer, char c);
 #endif

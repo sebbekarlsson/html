@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  HTMLOptions options = (HTMLOptions){ .xml_mode = 1 };
+  HTMLOptions options = (HTMLOptions){ .xml_mode = 0 };
 
   char *contents = read_file(argv[1]);
   HTMLNode *root = html(contents, &options);

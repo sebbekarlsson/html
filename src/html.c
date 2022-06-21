@@ -362,10 +362,16 @@ char *html_str_element_to_string(HTMLNode *node, unsigned int skip_tags, unsigne
   char* str = 0;
   //char* indentstr = generate_indent(indent);
  // html_str_append(&str, indentstr);
-//  html_str_append(&str, "TEXT(");
+
+#if 0
+  html_str_append(&str, "TEXT(");
   char* innerstr =  _html_str_to_string(node, skip_tags, indent);
   html_str_append(&str, innerstr);
- // html_str_append(&str, ")");
+  html_str_append(&str, ")");
+#else
+  char* innerstr =  _html_str_to_string(node, skip_tags, indent);
+  html_str_append(&str, innerstr);
+  #endif
 
   //free(indentstr);
 

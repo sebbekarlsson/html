@@ -206,39 +206,37 @@ static void next_word(HTMLLexer* lexer, uint32_t len, char* dest) {
 
 HTMLToken *html_lexer_parse_string_until(HTMLLexer *lexer, unsigned int allow_compute, char* word, char c) {
   char *s = 0;
+  int type = HTML_TOKEN_STR;
 
+  if (lexer->c == c) return init_html_token(type, "");
   uint32_t wordlen = word ? strlen(word) : 0;
 
+
   char delim = c;
-  int type = HTML_TOKEN_STR;
   char tmp[256];
   memset(&tmp[0], 0, sizeof(char) * sizeof(char));
+  memcpy(&tmp[0], &lexer->src[lexer->i], MIN(strlen(word), lexer->length - lexer->i));
 
-  while ((word ? strcmp(tmp, word) : 1) != 0 && lexer->c != delim && !(LEXER_IS_DONE(lexer))) {
+//  html_str_append_char(&s, lexer->c);
+//  html_lexer_advance(lexer);
+
+  while (lexer->c != '<' && !(LEXER_IS_DONE(lexer))) {
+
+    //if (word && strcmp(tmp, word) == 0) break;
 
     while (lexer->c == '\\') {
-    html_str_append_char(&s, lexer->c);
-    html_lexer_advance(lexer);
-
-    //html_str_append_char(&s, lexer->c);
-    //html_lexer_advance(lexer);
+      html_str_append_char(&s, lexer->c);
+      html_lexer_advance(lexer);
+      continue;
     }
 
-    if (word) {
-      next_word(lexer, wordlen, tmp);
-
-      if (strcmp(word, tmp) == 0) {
-        break;
-      }
-    }
-    if (lexer->c == '{' && allow_compute) {
-      type = HTML_TOKEN_COMPUTE;
-    }
     html_str_append_char(&s, lexer->c);
     html_lexer_advance(lexer);
   }
 
+
   HTMLToken *tok = init_html_token(type, s);
+
 
   free(s);
 
@@ -282,4 +280,28 @@ char html_lexer_peek(HTMLLexer *lexer, int i) {
 
 void html_lexer_get_lineinfostr(HTMLLexer* lexer, char* dest) {
   sprintf(dest, "(%d:%d)", (int)lexer->line, (int)lexer->column);
+}
+
+int html_lexer_skip_n(HTMLLexer* lexer, int64_t n) {
+  for (int64_t i = 0; i < n; i++) {
+    if (LEXER_IS_DONE(lexer)) break;
+    html_lexer_advance(lexer);
+  }
+  return 1;
+}
+
+int html_lexer_seek(HTMLLexer* lexer, char c) {
+  int pos = lexer->i;
+  if (lexer->src[pos] == c) return 1;
+  while (!LEXER_IS_DONE(lexer) && pos < lexer->length) {
+    if (lexer->src[pos] == c) return 1;
+    while (lexer->src[pos] == '\\') {
+      pos++;
+      continue;
+    }
+    if (lexer->src[pos] == '<' || lexer->src[pos] == '>') return 0;
+    pos++;
+  }
+
+  return pos;
 }
